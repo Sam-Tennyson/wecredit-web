@@ -17,6 +17,8 @@ import type {
   PageData,
   Header,
   Footer,
+  StrapiPage,
+  Page,
 } from './types';
 
 /**
@@ -78,7 +80,7 @@ export async function getStaticPageBySlug(slug: string): Promise<StaticPage | nu
  * Fetches page data by slug (tries blog post first, then static page)
  * @deprecated Use getBlogPostBySlug directly. Static pages now have dedicated routes.
  */
-export async function getPageBySlug(slug: string): Promise<PageData | null> {
+export async function getPageDataBySlug(slug: string): Promise<PageData | null> {
   // Try blog post first
   const blogPost = await getBlogPostBySlug(slug);
   if (blogPost) {
@@ -144,7 +146,7 @@ function normalizeBlogPost(data: StrapiBlogPost): BlogPost {
     type: 'blog-post',
     title: data.title,
     slug: data.slug,
-    content: data.content_markdown || '',
+    content: data.contentMarkdown || '',
     description: data.description || undefined,
     featuredImage: data.featuredImage ? {
       url: getStrapiMediaUrl(data.featuredImage.url),
@@ -152,27 +154,12 @@ function normalizeBlogPost(data: StrapiBlogPost): BlogPost {
       width: data.featuredImage.width,
       height: data.featuredImage.height,
     } : undefined,
-    category: data.blog_guide_category ? {
-      name: data.blog_guide_category.name,
-      slug: data.blog_guide_category.slug,
+    category: data.blogGuideCategory ? {
+      name: data.blogGuideCategory.name,
+      slug: data.blogGuideCategory.slug,
     } : undefined,
     seo: data.seo,
     publishedAt: data.publishedAt,
-  };
-}
-
-/**
- * Normalizes static page data from Strapi v5 format
- */
-function normalizeStaticPage(data: StrapiStaticPage): StaticPage {
-  return {
-    id: data.id,
-    documentId: data.documentId,
-    type: 'static-page',
-    title: data.title,
-    slug: data.slug,
-    content: data.content_markdown || '',
-    seo: data.seo,
   };
 }
 
@@ -229,5 +216,119 @@ function getDefaultFooter(): Footer {
     columns: [],
     copyright: `© ${new Date().getFullYear()} WeCredit. All rights reserved.`,
     socialLinks: [],
+  };
+}
+
+/**
+ * Fetches all pages from Strapi
+ */
+export async function getAllPages(): Promise<Page[]> {
+  try {
+    const response = await fetchStrapi<StrapiResponse<StrapiPage[]>>(
+      '/pages',
+      {
+        params: {
+          'populate[sidebar][populate]': '*',
+          'populate[children][populate]': '*',
+          'populate[parent][populate]': '*',
+          'populate[featuredImage][populate]': '*',
+          'sort': 'order:asc',
+        },
+      }
+    );
+    return response.data.map(normalizePage);
+  } catch (error) {
+    if (error instanceof Error) {
+      console.warn('Failed to fetch pages from Strapi:', error.message);
+      console.warn('Make sure the pages collection has proper permissions in Strapi');
+    }
+    return [];
+  }
+}
+
+/**
+ * Fetches a single page by slug from Strapi
+ */
+export async function getPageBySlug(slug: string): Promise<Page | null> {
+  try {
+    const response = await fetchStrapi<StrapiResponse<StrapiPage[]>>(
+      '/pages',
+      {
+        params: {
+          'filters[slug][$eq]': slug,
+          'populate[sidebar][populate]': '*',
+          'populate[children][populate]': '*',
+          'populate[parent][populate]': '*',
+          'populate[featuredImage][populate]': '*',
+        },
+      }
+    );
+    
+    if (!response.data || response.data.length === 0) {
+      return null;
+    }
+    
+    return normalizePage(response.data[0]);
+  } catch (error) {
+    if (error instanceof Error) {
+      console.warn(`Failed to fetch page with slug "${slug}" from Strapi:`, error.message);
+      if (error.message.includes('Forbidden')) {
+        console.warn('⚠️  The pages collection requires authentication or proper permissions.');
+        console.warn('📝 To fix this:');
+        console.warn('   1. Set STRAPI_API_TOKEN in your .env.local file');
+        console.warn('   2. OR make the pages collection publicly accessible in Strapi');
+        console.warn('   3. Go to Settings > Roles > Public > Permissions > Pages');
+        console.warn('   4. Enable "find" and "findOne" permissions');
+      }
+    }
+    return null;
+  }
+}
+
+/**
+ * Builds the full path for a page by traversing parent chain
+ */
+export function buildPagePath(page: StrapiPage): string {
+  const buildPath = (p: StrapiPage, segments: string[] = []): string[] => {
+    segments.unshift(p.slug);
+    if (p.parent && p.parent.slug !== 'home') {
+      return buildPath(p.parent, segments);
+    }
+    return segments;
+  };
+  
+  const segments = buildPath(page);
+  return segments.join('/');
+}
+
+/**
+ * Normalizes page data from Strapi v5 format
+ */
+function normalizePage(data: StrapiPage): Page {
+  const fullPath = buildPagePath(data);
+  
+  return {
+    id: data.id,
+    documentId: data.documentId,
+    type: 'page',
+    title: data.title,
+    slug: data.slug,
+    fullPath,
+    pageType: data.pageType,
+    level: data.level,
+    order: data.order,
+    content: data.content || '',
+    metaDescription: data.metaDescription || '',
+    sidebar: data.sidebar || [],
+    parent: data.parent ? normalizePage(data.parent) : null,
+    children: data.children ? data.children.map(normalizePage) : [],
+    featuredImage: data.featuredImage ? {
+      url: getStrapiMediaUrl(data.featuredImage.url),
+      alt: data.featuredImage.alternativeText || data.title,
+      width: data.featuredImage.width,
+      height: data.featuredImage.height,
+    } : undefined,
+    seo: data.seo,
+    publishedAt: data.publishedAt,
   };
 }

@@ -99,10 +99,10 @@ export interface StrapiBlogPost {
   documentId: string;
   title: string;
   slug: string;
-  content_markdown: string;
+  contentMarkdown: string;
   description: string | null;
   featuredImage: StrapiMedia | null;
-  blog_guide_category: BlogGuideCategory | null;
+  blogGuideCategory: BlogGuideCategory | null;
   seo?: SeoComponent;
   createdAt: string;
   updatedAt: string;
@@ -117,7 +117,7 @@ export interface StrapiStaticPage {
   documentId: string;
   title: string;
   slug: string;
-  content_markdown: string;
+  contentMarkdown: string;
   seo?: SeoComponent;
   createdAt: string;
   updatedAt: string;
@@ -202,4 +202,101 @@ export interface Footer {
   columns: FooterColumn[];
   copyright: string;
   socialLinks: SocialLink[];
+}
+
+/** Page Widget Types */
+
+/** Link for Related Links Widget */
+export interface WidgetLink {
+  id: number;
+  label: string;
+  url: string;
+  openInNewTab: boolean;
+}
+
+/** Banner Widget Component */
+export interface BannerWidget {
+  __component: 'widgets.banner';
+  id: number;
+  title: string;
+  subtitle: string;
+  buttonText: string;
+  buttonUrl: string;
+  backgroundColor: string;
+}
+
+/** Text Block Widget Component */
+export interface TextBlockWidget {
+  __component: 'widgets.text-block';
+  id: number;
+  title: string;
+  content: string;
+}
+
+/** Related Links Widget Component */
+export interface RelatedLinksWidget {
+  __component: 'widgets.related-links';
+  id: number;
+  title: string;
+  style: 'list' | 'card';
+  links?: WidgetLink[];
+}
+
+/** Recent Pages Widget Component */
+export interface RecentPagesWidget {
+  __component: 'widgets.recent-pages';
+  id: number;
+  title: string;
+  count: number;
+  showImages: boolean;
+}
+
+/** Union type for all page widgets */
+export type PageWidget = BannerWidget | TextBlockWidget | RelatedLinksWidget | RecentPagesWidget;
+
+/** Strapi Page from API (v5 format - flattened) */
+export interface StrapiPage {
+  id: number;
+  documentId: string;
+  title: string;
+  slug: string;
+  pageType: 'home' | 'pillar' | 'category' | 'subcategory';
+  level: number;
+  order: number;
+  content: string;
+  metaDescription: string;
+  sidebar: PageWidget[];
+  parent: StrapiPage | null;
+  children: StrapiPage[];
+  featuredImage: StrapiMedia | null;
+  seo?: SeoComponent;
+  createdAt: string;
+  updatedAt: string;
+  publishedAt: string;
+}
+
+/** Normalized Page for frontend use */
+export interface Page {
+  id: number;
+  documentId: string;
+  type: 'page';
+  title: string;
+  slug: string;
+  fullPath: string;
+  pageType: 'home' | 'pillar' | 'category' | 'subcategory';
+  level: number;
+  order: number;
+  content: string;
+  metaDescription: string;
+  sidebar: PageWidget[];
+  parent: Page | null;
+  children: Page[];
+  featuredImage?: {
+    url: string;
+    alt: string;
+    width: number;
+    height: number;
+  };
+  seo?: SeoComponent;
+  publishedAt: string;
 }
