@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import type { RelatedLinksWidget } from '@/lib/strapi/types';
+import { RelatedLinksWidget } from '@/types/strapi';
 
 /** Props for RelatedLinksWidget component */
 interface RelatedLinksWidgetProps {

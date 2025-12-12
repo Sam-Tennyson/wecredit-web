@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import type { BannerWidget } from '@/lib/strapi/types';
+import { BannerWidget } from '@/types/strapi';
 
 /** Props for BannerWidget component */
 interface BannerWidgetProps {
@@ -18,13 +18,15 @@ const BannerWidgetComponent = ({ widget }: BannerWidgetProps) => {
       style={{ backgroundColor }}
     >
       <h3 className="text-xl font-bold mb-2">{title}</h3>
-      <p className="text-sm mb-4 opacity-90">{subtitle}</p>
-      <Link
-        href={buttonUrl}
-        className="inline-block bg-white text-gray-900 px-4 py-2 rounded-md font-medium hover:bg-gray-100 transition-colors text-sm"
-      >
-        {buttonText}
-      </Link>
+      {subtitle && <p className="text-sm mb-4 opacity-90">{subtitle}</p>}
+      {buttonText && buttonUrl && (
+        <Link
+          href={buttonUrl}
+          className="inline-block bg-white text-gray-900 px-4 py-2 rounded-md font-medium hover:bg-gray-100 transition-colors text-sm"
+        >
+          {buttonText}
+        </Link>
+      )}
     </div>
   );
 };

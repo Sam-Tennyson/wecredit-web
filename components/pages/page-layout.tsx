@@ -1,6 +1,7 @@
 import PageContent from './page-content';
 import PageSidebar from './page-sidebar';
-import type { Page } from '@/lib/strapi/types';
+import FormWidget from '@/components/widgets/form-widget';
+import type { Page } from '@/lib/api/strapi';
 
 /** Props for PageLayout component */
 interface PageLayoutProps {
@@ -21,12 +22,20 @@ const PageLayout = ({ page }: PageLayoutProps) => {
       {isHomePage && (
         <div className="space-y-8">
           <PageContent page={page} />
-          {hasSidebar && (
+          
+          {/* Standalone Form Widget */}
+          {page.formWidget && (
+            <div className="mt-8">
+              <FormWidget widget={page.formWidget} />
+            </div>
+          )}
+          
+          {hasSidebar && page.sidebar && (
             <div className="lg:hidden">
               <PageSidebar widgets={page.sidebar} />
             </div>
           )}
-          {hasSidebar && (
+          {hasSidebar && page.sidebar && (
             <div className="hidden lg:block">
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-3">
@@ -38,17 +47,24 @@ const PageLayout = ({ page }: PageLayoutProps) => {
         </div>
       )}
       
-      {/* Other page types: content with sidebar */}
+      {/* Other page types: content with sidebar (8/4 split) */}
       {!isHomePage && (
-        <div className={`grid grid-cols-1 ${hasSidebar ? 'lg:grid-cols-3' : ''} gap-8`}>
+        <div className={`grid grid-cols-1 ${hasSidebar ? 'lg:grid-cols-12' : ''} gap-8`}>
           {/* Main Content */}
-          <div className={hasSidebar ? 'lg:col-span-2' : 'lg:col-span-3'}>
+          <div className={hasSidebar ? 'lg:col-span-8' : ''}>
             <PageContent page={page} />
+            
+            {/* Standalone Form Widget */}
+            {page.formWidget && (
+              <div className="mt-8">
+                <FormWidget widget={page.formWidget} />
+              </div>
+            )}
           </div>
           
           {/* Sidebar */}
-          {hasSidebar && (
-            <div className="lg:col-span-1">
+          {hasSidebar && page.sidebar && (
+            <div className="lg:col-span-4">
               <PageSidebar widgets={page.sidebar} />
             </div>
           )}

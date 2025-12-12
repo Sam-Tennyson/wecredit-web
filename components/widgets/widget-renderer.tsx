@@ -1,12 +1,13 @@
-import type { PageWidget } from '@/lib/strapi/types';
+import { SidebarWidget } from '@/types/strapi';
 import BannerWidgetComponent from './banner-widget';
 import TextBlockWidgetComponent from './text-block-widget';
 import RelatedLinksWidgetComponent from './related-links-widget';
 import RecentPagesWidgetComponent from './recent-pages-widget';
+import FormWidget from './form-widget';
 
 /** Props for WidgetRenderer component */
 interface WidgetRendererProps {
-  widget: PageWidget;
+  widget: SidebarWidget;
 }
 
 /**
@@ -27,8 +28,11 @@ const WidgetRenderer = ({ widget }: WidgetRendererProps) => {
     case 'widgets.recent-pages':
       return <RecentPagesWidgetComponent widget={widget} />;
     
+    case 'widgets.form-widget':
+      return <FormWidget widget={widget} />;
+    
     default:
-      console.warn(`Unknown widget component: ${(widget as PageWidget).__component}`);
+      console.warn(`Unknown widget component: ${(widget as SidebarWidget).__component}`);
       return null;
   }
 };

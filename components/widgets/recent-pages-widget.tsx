@@ -1,23 +1,22 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { getAllPages } from '@/lib/strapi/queries';
-import type { RecentPagesWidget } from '@/lib/strapi/types';
+import { getRecentPages } from '@/lib/api/pages';
+import { getOptimizedImageUrl } from '@/lib/api/strapi';
+import { RecentPagesWidget } from '@/types/strapi';
 
 /** Props for RecentPagesWidget component */
 interface RecentPagesWidgetProps {
   widget: RecentPagesWidget;
+  excludePageId?: string;
 }
 
 /**
  * Renders a recent pages widget with optional images
  */
-const RecentPagesWidgetComponent = async ({ widget }: RecentPagesWidgetProps) => {
+const RecentPagesWidgetComponent = async ({ widget, excludePageId }: RecentPagesWidgetProps) => {
   const { title, count, showImages } = widget;
   
-  const pages = await getAllPages();
-  const recentPages = pages
-    .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
-    .slice(0, count);
+  const recentPages = await getRecentPages(count, ['blog', 'guide', 'resource']);
   
   if (recentPages.length === 0) {
     return null;
@@ -30,14 +29,14 @@ const RecentPagesWidgetComponent = async ({ widget }: RecentPagesWidgetProps) =>
         {recentPages.map((page) => (
           <li key={page.documentId}>
             <Link
-              href={`/${page.fullPath}`}
+              href={page.fullPath}
               className="group block hover:bg-gray-50 rounded-md p-2 transition-colors"
             >
               {showImages && page.featuredImage && (
                 <div className="relative w-full h-24 mb-2 rounded overflow-hidden">
                   <Image
-                    src={page.featuredImage.url}
-                    alt={page.featuredImage.alt}
+                    src={getOptimizedImageUrl(page.featuredImage, 'thumbnail')}
+                    alt={page.featuredImage.alternativeText || page.title}
                     fill
                     className="object-cover"
                   />
@@ -46,6 +45,11 @@ const RecentPagesWidgetComponent = async ({ widget }: RecentPagesWidgetProps) =>
               <span className="text-sm font-medium text-gray-900 group-hover:text-blue-600 line-clamp-2">
                 {page.title}
               </span>
+              {page.readingTime && (
+                <span className="text-xs text-gray-500 mt-1 block">
+                  {page.readingTime} min read
+                </span>
+              )}
             </Link>
           </li>
         ))}

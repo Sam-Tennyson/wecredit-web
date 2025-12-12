@@ -1,4 +1,4 @@
-import type { TextBlockWidget } from '@/lib/strapi/types';
+import { TextBlockWidget } from '@/types/strapi';
 
 /** Props for TextBlockWidget component */
 interface TextBlockWidgetProps {
@@ -6,14 +6,16 @@ interface TextBlockWidgetProps {
 }
 
 /**
- * Renders a text block widget with title and HTML content
+ * Renders a text block widget with optional title and richtext content
  */
 const TextBlockWidgetComponent = ({ widget }: TextBlockWidgetProps) => {
   const { title, content } = widget;
   
   return (
     <div className="bg-white rounded-lg p-6 shadow-md border border-gray-200">
-      <h3 className="text-lg font-bold mb-3 text-gray-900">{title}</h3>
+      {title && (
+        <h3 className="text-lg font-bold mb-3 text-gray-900">{title}</h3>
+      )}
       <div 
         className="prose prose-sm max-w-none text-gray-700"
         dangerouslySetInnerHTML={{ __html: content }}

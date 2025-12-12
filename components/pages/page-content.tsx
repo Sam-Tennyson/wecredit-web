@@ -1,47 +1,42 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import MarkdownHtmlContent from '@/components/shared/MarkdownHtmlContent';
-import type { Page } from '@/lib/strapi/types';
+import PageHeader from '@/components/page/PageHeader';
+import { Page, PageSummary, Breadcrumb, getStrapiMediaUrl } from '@/lib/api/strapi';
+import { getBreadcrumbs } from '@/lib/api/pages';
+
+/** Child page with required display fields */
+interface ChildPage extends PageSummary {
+  fullPath: string;
+  documentId: string;
+}
 
 /** Props for PageContent component */
 interface PageContentProps {
   page: Page;
+  breadcrumbs?: Breadcrumb[];
 }
 
 /**
- * Breadcrumb item interface
+ * Type guard to check if children are PageSummary with required fields
  */
-interface BreadcrumbItem {
-  title: string;
-  path: string;
+function isChildPage(child: unknown): child is ChildPage {
+  return (
+    typeof child === 'object' &&
+    child !== null &&
+    'documentId' in child &&
+    'fullPath' in child &&
+    'title' in child
+  );
 }
 
 /**
- * Builds breadcrumb array from page parent chain
+ * Renders main page content with breadcrumbs, header, content and children
  */
-function buildBreadcrumbs(page: Page): BreadcrumbItem[] {
-  const breadcrumbs: BreadcrumbItem[] = [];
-  
-  const addParentBreadcrumbs = (currentPage: Page) => {
-    if (currentPage.parent) {
-      addParentBreadcrumbs(currentPage.parent);
-    }
-    breadcrumbs.push({
-      title: currentPage.title,
-      path: `/${currentPage.fullPath}`,
-    });
-  };
-  
-  addParentBreadcrumbs(page);
-  return breadcrumbs;
-}
-
-/**
- * Renders main page content with breadcrumbs, featured image, content and children
- */
-const PageContent = ({ page }: PageContentProps) => {
-  const breadcrumbs = buildBreadcrumbs(page);
-  const hasChildren = page.children && page.children.length > 0;
+const PageContent = async ({ page, breadcrumbs: providedBreadcrumbs }: PageContentProps) => {
+  const breadcrumbs = providedBreadcrumbs || await getBreadcrumbs(page);
+  const childPages = page.children?.filter(isChildPage) || [];
+  const hasChildren = childPages.length > 0;
   
   return (
     <div className="bg-white rounded-lg shadow-md p-8">
@@ -72,29 +67,16 @@ const PageContent = ({ page }: PageContentProps) => {
         </nav>
       )}
       
-      {/* Featured Image */}
-      {page.featuredImage && (
-        <div className="relative w-full h-64 md:h-96 mb-8 rounded-lg overflow-hidden">
-          <Image
-            src={page.featuredImage.url}
-            alt={page.featuredImage.alt}
-            fill
-            className="object-cover"
-            priority
-          />
-        </div>
-      )}
-      
-      {/* Page Title */}
-      <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-        {page.title}
-      </h1>
+      {/* Page Header */}
+      <PageHeader page={page} />
       
       {/* Page Content */}
-      <MarkdownHtmlContent 
-        content={page.content} 
-        className="prose prose-lg max-w-none mb-8"
-      />
+      {page.content && (
+        <MarkdownHtmlContent 
+          content={page.content} 
+          className="mb-8"
+        />
+      )}
       
       {/* Children Pages */}
       {hasChildren && (
@@ -103,17 +85,17 @@ const PageContent = ({ page }: PageContentProps) => {
             Explore {page.title}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {page.children.map((child) => (
+            {childPages.map((child) => (
               <Link
                 key={child.documentId}
-                href={`/${child.fullPath}`}
+                href={child.fullPath}
                 className="group block p-6 bg-gray-50 hover:bg-blue-50 rounded-lg border border-gray-200 hover:border-blue-300 transition-all"
               >
                 {child.featuredImage && (
                   <div className="relative w-full h-32 mb-4 rounded overflow-hidden">
                     <Image
-                      src={child.featuredImage.url}
-                      alt={child.featuredImage.alt}
+                      src={getStrapiMediaUrl(child.featuredImage.url)}
+                      alt={child.featuredImage.alternativeText || child.title}
                       fill
                       className="object-cover"
                     />
@@ -122,9 +104,9 @@ const PageContent = ({ page }: PageContentProps) => {
                 <h3 className="text-xl font-bold text-gray-900 group-hover:text-blue-600 mb-2">
                   {child.title}
                 </h3>
-                {child.metaDescription && (
+                {child.excerpt && (
                   <p className="text-sm text-gray-600 line-clamp-2">
-                    {child.metaDescription}
+                    {child.excerpt}
                   </p>
                 )}
               </Link>

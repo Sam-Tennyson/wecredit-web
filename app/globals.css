@@ -24,3 +24,34 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* =============================================================================
+ * Markdown Content Styles
+ * Comprehensive styling for all markdown/HTML elements from Strapi
+ * ============================================================================= */
+
+/* Base container */
+/* .markdown-content-strapi {
+  @apply max-w-none text-gray-700;
+} */
+
+/* Headings */
+.markdown-content-strapi h1 {
+  @apply text-4xl font-bold mb-6 mt-8 leading-tight text-gray-900;
+}
+
+.markdown-content-strapi h2 {
+  @apply text-3xl font-bold mb-5 mt-8 leading-tight text-gray-900;
+}
+
+.markdown-content-strapi h3 {
+  @apply text-2xl font-semibold mb-4 mt-6 leading-snug text-gray-900;
+}
+
+.markdown-content-strapi .input-group {
+  @apply text-blue-400 hover:text-blue-300;
+}
+
+.markdown-content-strapi > button {
+  @apply bg-blue-600 text-white px-4 py-2 rounded-md font-medium hover:bg-blue-800 transition-colors text-sm;
+}

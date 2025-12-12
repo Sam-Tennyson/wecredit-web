@@ -1,21 +1,22 @@
 import WidgetRenderer from '@/components/widgets/widget-renderer';
-import type { PageWidget } from '@/lib/strapi/types';
+import { SidebarWidget } from '@/types/strapi';
 
 /** Props for PageSidebar component */
 interface PageSidebarProps {
-  widgets: PageWidget[];
+  widgets: SidebarWidget[];
+  currentPageId?: string;
 }
 
 /**
- * Renders sidebar with widgets
+ * Renders sidebar with dynamic widgets
  */
-const PageSidebar = ({ widgets }: PageSidebarProps) => {
+const PageSidebar = ({ widgets, currentPageId }: PageSidebarProps) => {
   if (!widgets || widgets.length === 0) {
     return null;
   }
   
   return (
-    <aside className="space-y-6">
+    <aside className="sticky top-8 space-y-6">
       {widgets.map((widget, index) => (
         <WidgetRenderer key={`${widget.__component}-${widget.id || index}`} widget={widget} />
       ))}

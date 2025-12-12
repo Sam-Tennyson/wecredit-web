@@ -17,9 +17,7 @@ const StaticPageContent = ({ page }: StaticPageContentProps) => {
           {page.title}
         </h1>
       </header>
-      <div className="prose prose-lg max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-a:text-blue-600 hover:prose-a:text-blue-800 prose-strong:text-gray-900">
-        <MarkdownHtmlContent content={page.content} />
-      </div>
+      <MarkdownHtmlContent content={page.content} />
     </div>
   );
 };
