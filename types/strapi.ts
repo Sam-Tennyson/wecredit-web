@@ -365,3 +365,59 @@ export interface Footer {
   socialLinks: SocialLink[];
 }
 
+// ============================================
+// GLOBAL API TYPES
+// ============================================
+
+/** Link structure for Global API header/footer links */
+export interface GlobalLink {
+  id: number;
+  order: number;
+  label: string;
+  url: string;
+  openInNewTab: boolean;
+  children: GlobalLink[];
+}
+
+/** Social links object from Global API */
+export interface GlobalSocialLinks {
+  id: number;
+  twitter: string | null;
+  linkedin: string | null;
+  github: string | null;
+  website: string | null;
+}
+
+/** Raw Global Single Type from Strapi API */
+export interface StrapiGlobal {
+  id: number;
+  documentId: string;
+  siteName: string;
+  copyrightText: string;
+  contactEmail: string;
+  contactPhone: string;
+  headerLinks: GlobalLink[];
+  footerLinks: GlobalLink[];
+  socialLinks: GlobalSocialLinks | null;
+  logo: StrapiMedia | null;
+  favicon: StrapiMedia | null;
+  createdAt: string;
+  updatedAt: string;
+  publishedAt: string;
+}
+
+/** Global data for frontend use (raw, no transformation) */
+export interface GlobalData {
+  id: number;
+  documentId: string;
+  siteName: string;
+  copyrightText: string;
+  contactEmail: string;
+  contactPhone: string;
+  headerLinks: GlobalLink[];
+  footerLinks: GlobalLink[];
+  socialLinks: GlobalSocialLinks | null;
+  logo: StrapiMedia | null;
+  favicon: StrapiMedia | null;
+}
+

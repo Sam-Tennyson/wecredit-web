@@ -19,6 +19,8 @@ import type {
   Footer,
   StrapiPage,
   Page,
+  StrapiGlobal,
+  GlobalData,
 } from './types';
 
 /**
@@ -134,6 +136,65 @@ export async function getFooter(): Promise<Footer> {
   } catch {
     return getDefaultFooter();
   }
+}
+
+/**
+ * Fetches global site data from Strapi single type
+ * Includes header links, footer links, social links, logo, and favicon
+ */
+export async function getGlobal(): Promise<GlobalData> {
+  try {
+    const response = await fetchStrapi<StrapiResponse<StrapiGlobal>>(
+      '/global',
+      {
+        params: {
+          'populate[headerLinks][populate]': 'children',
+          'populate[footerLinks][populate]': 'children',
+          'populate[socialLinks]': '*',
+          'populate[logo][populate]': '*',
+          'populate[favicon][populate]': '*',
+        },
+      }
+    );
+    const data = response.data;
+    return {
+      id: data.id,
+      documentId: data.documentId,
+      siteName: data.siteName,
+      copyrightText: data.copyrightText,
+      contactEmail: data.contactEmail,
+      contactPhone: data.contactPhone,
+      headerLinks: data.headerLinks || [],
+      footerLinks: data.footerLinks || [],
+      socialLinks: data.socialLinks,
+      logo: data.logo,
+      favicon: data.favicon,
+    };
+  } catch {
+    return getDefaultGlobal();
+  }
+}
+
+/**
+ * Returns default global data when Strapi is unavailable
+ */
+function getDefaultGlobal(): GlobalData {
+  return {
+    id: 0,
+    documentId: '',
+    siteName: 'WeCredit',
+    copyrightText: `© ${new Date().getFullYear()} WeCredit. All rights reserved.`,
+    contactEmail: '',
+    contactPhone: '',
+    headerLinks: [
+      { id: 1, order: 1, label: 'Home', url: '/', openInNewTab: false, children: [] },
+      { id: 2, order: 2, label: 'About Us', url: '/about-us', openInNewTab: false, children: [] },
+    ],
+    footerLinks: [],
+    socialLinks: null,
+    logo: null,
+    favicon: null,
+  };
 }
 
 /**

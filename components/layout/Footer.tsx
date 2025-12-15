@@ -1,16 +1,20 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import type { Footer as FooterType, FooterColumn, SocialLink } from '@/lib/strapi/types';
+import type { GlobalLink, GlobalSocialLinks, StrapiMedia } from '@/types/strapi';
 
 /** Props for Footer component */
 interface FooterProps {
-  data: FooterType;
+  footerLinks: GlobalLink[];
+  socialLinks: GlobalSocialLinks | null;
+  copyrightText: string;
+  logo: StrapiMedia | null;
+  siteName: string;
 }
 
 /**
- * Site footer with columns, social links, and copyright
+ * Site footer with link sections, social links, and copyright
  */
-const Footer = ({ data }: FooterProps) => {
+const Footer = ({ footerLinks, socialLinks, copyrightText, logo, siteName }: FooterProps) => {
   return (
     <footer className="bg-gray-900 text-gray-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -18,16 +22,16 @@ const Footer = ({ data }: FooterProps) => {
           {/* Logo and Description */}
           <div className="lg:col-span-1">
             <Link href="/" className="inline-block mb-4">
-              {data.logo ? (
+              {logo ? (
                 <Image
-                  src={data.logo.url}
-                  alt={data.logo.alt}
+                  src={logo.url}
+                  alt={logo.alternativeText || siteName}
                   width={140}
                   height={40}
                   className="h-10 w-auto brightness-0 invert"
                 />
               ) : (
-                <span className="text-xl font-bold text-white">WeCredit</span>
+                <span className="text-xl font-bold text-white">{siteName}</span>
               )}
             </Link>
             <p className="text-sm text-gray-400 leading-relaxed">
@@ -35,9 +39,9 @@ const Footer = ({ data }: FooterProps) => {
               Get instant access to funds when you need them most.
             </p>
           </div>
-          {/* Footer Columns */}
-          {data.columns.map((column) => (
-            <FooterColumnComponent key={column.id} column={column} />
+          {/* Footer Link Sections */}
+          {footerLinks.map((section) => (
+            <FooterLinkSection key={section.id} section={section} />
           ))}
         </div>
         {/* Bottom Section */}
@@ -45,15 +49,11 @@ const Footer = ({ data }: FooterProps) => {
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             {/* Copyright */}
             <p className="text-sm text-gray-400">
-              {data.copyright}
+              {copyrightText}
             </p>
             {/* Social Links */}
-            {data.socialLinks.length > 0 && (
-              <div className="flex items-center gap-4">
-                {data.socialLinks.map((social) => (
-                  <SocialLinkComponent key={social.id} social={social} />
-                ))}
-              </div>
+            {socialLinks && (
+              <SocialLinksSection socialLinks={socialLinks} />
             )}
           </div>
         </div>
@@ -62,64 +62,89 @@ const Footer = ({ data }: FooterProps) => {
   );
 };
 
-/** Props for FooterColumnComponent */
-interface FooterColumnComponentProps {
-  column: FooterColumn;
+/** Props for FooterLinkSection */
+interface FooterLinkSectionProps {
+  section: GlobalLink;
 }
 
 /**
- * Renders a footer column with title and links
+ * Renders a footer section with title and child links
  */
-const FooterColumnComponent = ({ column }: FooterColumnComponentProps) => {
+const FooterLinkSection = ({ section }: FooterLinkSectionProps) => {
   return (
     <div>
-      <h3 className="text-white font-semibold mb-4">{column.title}</h3>
-      <ul className="space-y-2">
-        {column.links.map((link) => (
-          <li key={link.id}>
-            {link.isExternal ? (
-              <a
-                href={link.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm text-gray-400 hover:text-white transition-colors"
-              >
-                {link.label}
-              </a>
-            ) : (
-              <Link
-                href={link.url}
-                className="text-sm text-gray-400 hover:text-white transition-colors"
-              >
-                {link.label}
-              </Link>
-            )}
-          </li>
-        ))}
-      </ul>
+      <h3 className="text-white font-semibold mb-4">{section.label}</h3>
+      {section.children.length > 0 ? (
+        <ul className="space-y-2">
+          {section.children.map((link) => (
+            <li key={link.id}>
+              {link.openInNewTab ? (
+                <a
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-gray-400 hover:text-white transition-colors"
+                >
+                  {link.label}
+                </a>
+              ) : (
+                <Link
+                  href={link.url}
+                  className="text-sm text-gray-400 hover:text-white transition-colors"
+                >
+                  {link.label}
+                </Link>
+              )}
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <Link
+          href={section.url}
+          className="text-sm text-gray-400 hover:text-white transition-colors"
+        >
+          {section.label}
+        </Link>
+      )}
     </div>
   );
 };
 
-/** Props for SocialLinkComponent */
-interface SocialLinkComponentProps {
-  social: SocialLink;
+/** Props for SocialLinksSection */
+interface SocialLinksSectionProps {
+  socialLinks: GlobalSocialLinks;
 }
 
 /**
- * Renders a social media link icon
+ * Renders social media links from the object structure
  */
-const SocialLinkComponent = ({ social }: SocialLinkComponentProps) => {
+const SocialLinksSection = ({ socialLinks }: SocialLinksSectionProps) => {
+  const links = [
+    { platform: 'twitter', url: socialLinks.twitter },
+    { platform: 'linkedin', url: socialLinks.linkedin },
+    { platform: 'github', url: socialLinks.github },
+    { platform: 'website', url: socialLinks.website },
+  ].filter((link) => link.url !== null);
+
+  if (links.length === 0) {
+    return null;
+  }
+
   return (
-    <a
-      href={social.url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-800 text-gray-400 hover:bg-blue-600 hover:text-white transition-colors"
-      aria-label={social.platform}
-    >
-      <SocialIcon platform={social.platform} />
-    </a>
+    <div className="flex items-center gap-4">
+      {links.map((link) => (
+        <a
+          key={link.platform}
+          href={link.url as string}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-800 text-gray-400 hover:bg-blue-600 hover:text-white transition-colors"
+          aria-label={link.platform}
+        >
+          <SocialIcon platform={link.platform} />
+        </a>
+      ))}
+    </div>
   );
 };
 
@@ -165,6 +190,19 @@ const SocialIcon = ({ platform }: SocialIconProps) => {
           <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
         </svg>
       );
+    case 'github':
+      return (
+        <svg className={iconClass} fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+        </svg>
+      );
+    case 'website':
+      return (
+        <svg className={iconClass} fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm0 22c-5.523 0-10-4.477-10-10S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z" />
+          <path d="M12 4c-4.411 0-8 3.589-8 8s3.589 8 8 8 8-3.589 8-8-3.589-8-8-8zm0 14c-3.309 0-6-2.691-6-6s2.691-6 6-6 6 2.691 6 6-2.691 6-6 6z" />
+        </svg>
+      );
     default:
       return (
         <svg className={iconClass} fill="currentColor" viewBox="0 0 24 24">
@@ -175,4 +213,3 @@ const SocialIcon = ({ platform }: SocialIconProps) => {
 };
 
 export default Footer;
-

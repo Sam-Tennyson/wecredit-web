@@ -35,6 +35,8 @@ export interface ImageFormat {
   url: string;
   width: number;
   height: number;
+  name: string;
+  mime: string;
 }
 
 /** Strapi Media type (v5 format) */
@@ -43,8 +45,10 @@ export interface StrapiMedia {
   documentId: string;
   url: string;
   alternativeText: string | null;
+  name: string;
   width: number;
   height: number;
+  mime: string;
   formats?: {
     thumbnail?: ImageFormat;
     small?: ImageFormat;
@@ -299,4 +303,58 @@ export interface Page {
   };
   seo?: SeoComponent;
   publishedAt: string;
+}
+
+/** Global API Types */
+
+/** Link structure for Global API header/footer links */
+export interface GlobalLink {
+  id: number;
+  order: number;
+  label: string;
+  url: string;
+  openInNewTab: boolean;
+  children: GlobalLink[];
+}
+
+/** Social links object from Global API */
+export interface GlobalSocialLinks {
+  id: number;
+  twitter: string | null;
+  linkedin: string | null;
+  github: string | null;
+  website: string | null;
+}
+
+/** Raw Global Single Type from Strapi API */
+export interface StrapiGlobal {
+  id: number;
+  documentId: string;
+  siteName: string;
+  copyrightText: string;
+  contactEmail: string;
+  contactPhone: string;
+  headerLinks: GlobalLink[];
+  footerLinks: GlobalLink[];
+  socialLinks: GlobalSocialLinks | null;
+  logo: StrapiMedia | null;
+  favicon: StrapiMedia | null;
+  createdAt: string;
+  updatedAt: string;
+  publishedAt: string;
+}
+
+/** Global data for frontend use (raw, no transformation) */
+export interface GlobalData {
+  id: number;
+  documentId: string;
+  siteName: string;
+  copyrightText: string;
+  contactEmail: string;
+  contactPhone: string;
+  headerLinks: GlobalLink[];
+  footerLinks: GlobalLink[];
+  socialLinks: GlobalSocialLinks | null;
+  logo: StrapiMedia | null;
+  favicon: StrapiMedia | null;
 }
