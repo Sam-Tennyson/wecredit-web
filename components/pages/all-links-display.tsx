@@ -39,7 +39,7 @@ const AllLinksDisplay = ({ page, header, footer }: AllLinksDisplayProps) => {
               key={link.id}
               label={link.label}
               url={link.url}
-              isExternal={link.isExternal}
+              isExternal={link.openInNewTab}
             />
           ))}
         </div>

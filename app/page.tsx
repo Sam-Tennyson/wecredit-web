@@ -77,10 +77,6 @@ const Home = async () => {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <PageNavigationLinks page={homePage} />
-      </div>
-
       <PageLayout page={homePage} />
       <DebugData data={homePage} title="Home Page" />
     </>

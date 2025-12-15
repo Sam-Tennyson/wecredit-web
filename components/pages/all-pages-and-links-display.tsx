@@ -50,7 +50,7 @@ const AllPagesAndLinksDisplay = ({ pages, header, footer }: AllPagesAndLinksDisp
               key={link.id}
               label={link.label}
               url={link.url}
-              isExternal={link.isExternal}
+              isExternal={link.openInNewTab}
               color="blue"
             />
           ))}

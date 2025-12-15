@@ -193,7 +193,7 @@ export interface Header {
     url: string;
     alt: string;
   };
-  navigation: NavigationLink[];
+  navigation: GlobalLink[];
   ctaButton?: CtaButton;
 }
 

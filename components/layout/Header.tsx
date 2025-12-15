@@ -3,7 +3,17 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState } from 'react';
-import type { Header as HeaderType } from '@/lib/strapi/types';
+import type { Header as HeaderType, GlobalLink } from '@/lib/strapi/types';
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+  navigationMenuTriggerStyle,
+} from '@/components/ui/navigation-menu';
+import { cn } from '@/lib/utils';
 
 /** Props for Header component */
 interface HeaderProps {
@@ -19,7 +29,7 @@ const Header = ({ data }: HeaderProps) => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
   return (
-    <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
+    <header className="bg-background border-b border-border sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -33,21 +43,23 @@ const Header = ({ data }: HeaderProps) => {
                 className="h-10 w-auto"
               />
             ) : (
-              <span className="text-xl font-bold text-blue-600">WeCredit</span>
+              <span className="text-xl font-bold text-primary">WeCredit</span>
             )}
           </Link>
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-8">
-            {data.navigation.map((link) => (
-              <NavLink key={link.id} {...link} />
-            ))}
-          </nav>
+          <NavigationMenu className="hidden md:flex">
+            <NavigationMenuList>
+              {data.navigation.map((link) => (
+                <NavItem key={link.id} link={link} />
+              ))}
+            </NavigationMenuList>
+          </NavigationMenu>
           {/* CTA Button */}
           {data.ctaButton && (
             <div className="hidden md:block">
               <Link
                 href={data.ctaButton.url}
-                className="inline-flex items-center justify-center px-5 py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                className="inline-flex items-center justify-center px-5 py-2.5 bg-primary text-primary-foreground font-medium rounded-lg hover:bg-primary/90 transition-colors"
               >
                 {data.ctaButton.label}
               </Link>
@@ -56,7 +68,7 @@ const Header = ({ data }: HeaderProps) => {
           {/* Mobile Menu Button */}
           <button
             type="button"
-            className="md:hidden p-2 rounded-lg text-gray-600 hover:bg-gray-100"
+            className="md:hidden p-2 rounded-lg text-muted-foreground hover:bg-accent"
             onClick={toggleMobileMenu}
             aria-label="Toggle menu"
           >
@@ -87,19 +99,19 @@ const Header = ({ data }: HeaderProps) => {
       </div>
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden border-t border-gray-200">
+        <div className="md:hidden border-t border-border">
           <nav className="px-4 py-4 space-y-2">
             {data.navigation.map((link) => (
-              <MobileNavLink
+              <MobileNavItem
                 key={link.id}
-                {...link}
-                onClick={() => setIsMobileMenuOpen(false)}
+                link={link}
+                onClose={() => setIsMobileMenuOpen(false)}
               />
             ))}
             {data.ctaButton && (
               <Link
                 href={data.ctaButton.url}
-                className="block w-full text-center px-5 py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors mt-4"
+                className="block w-full text-center px-5 py-2.5 bg-primary text-primary-foreground font-medium rounded-lg hover:bg-primary/90 transition-colors mt-4"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 {data.ctaButton.label}
@@ -112,71 +124,120 @@ const Header = ({ data }: HeaderProps) => {
   );
 };
 
-/** Props for NavLink component */
-interface NavLinkProps {
-  label: string;
-  url: string;
-  isExternal: boolean;
+/** Props for NavItem component */
+interface NavItemProps {
+  link: GlobalLink;
 }
 
 /**
- * Desktop navigation link
+ * Desktop navigation item - handles both simple links and dropdowns
  */
-const NavLink = ({ label, url, isExternal }: NavLinkProps) => {
-  if (isExternal) {
+const NavItem = ({ link }: NavItemProps) => {
+  const hasChildren = link.children && link.children.length > 0;
+  if (hasChildren) {
     return (
-      <a
-        href={url}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
-      >
-        {label}
-      </a>
+      <NavigationMenuItem>
+        <NavigationMenuTrigger>{link.label}</NavigationMenuTrigger>
+        <NavigationMenuContent>
+          <ul className="grid w-[200px] gap-1 p-2">
+            {link.children.map((child) => (
+              <li key={child.id}>
+                <NavigationMenuLink asChild>
+                  <Link
+                    href={child.url}
+                    target={child.openInNewTab ? '_blank' : undefined}
+                    rel={child.openInNewTab ? 'noopener noreferrer' : undefined}
+                    className={cn(
+                      'block select-none rounded-md p-3 leading-none no-underline outline-none transition-colors',
+                      'hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground'
+                    )}
+                  >
+                    <span className="text-sm font-medium">{child.label}</span>
+                  </Link>
+                </NavigationMenuLink>
+              </li>
+            ))}
+          </ul>
+        </NavigationMenuContent>
+      </NavigationMenuItem>
     );
   }
   return (
-    <Link
-      href={url}
-      className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
-    >
-      {label}
-    </Link>
+    <NavigationMenuItem>
+      <NavigationMenuLink asChild>
+        <Link
+          href={link.url}
+          target={link.openInNewTab ? '_blank' : undefined}
+          rel={link.openInNewTab ? 'noopener noreferrer' : undefined}
+          className={navigationMenuTriggerStyle()}
+        >
+          {link.label}
+        </Link>
+      </NavigationMenuLink>
+    </NavigationMenuItem>
   );
 };
 
-/** Props for MobileNavLink component */
-interface MobileNavLinkProps extends NavLinkProps {
-  onClick: () => void;
+/** Props for MobileNavItem component */
+interface MobileNavItemProps {
+  link: GlobalLink;
+  onClose: () => void;
 }
 
 /**
- * Mobile navigation link
+ * Mobile navigation item - handles both simple links and expandable sections
  */
-const MobileNavLink = ({ label, url, isExternal, onClick }: MobileNavLinkProps) => {
-  if (isExternal) {
+const MobileNavItem = ({ link, onClose }: MobileNavItemProps) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const hasChildren = link.children && link.children.length > 0;
+  if (hasChildren) {
     return (
-      <a
-        href={url}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg font-medium"
-        onClick={onClick}
-      >
-        {label}
-      </a>
+      <div>
+        <button
+          type="button"
+          className="flex w-full items-center justify-between px-4 py-2 text-foreground hover:bg-accent rounded-lg font-medium"
+          onClick={() => setIsExpanded(!isExpanded)}
+        >
+          {link.label}
+          <svg
+            className={cn('w-4 h-4 transition-transform', isExpanded && 'rotate-180')}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+        {isExpanded && (
+          <div className="pl-4 mt-1 space-y-1">
+            {link.children.map((child) => (
+              <Link
+                key={child.id}
+                href={child.url}
+                target={child.openInNewTab ? '_blank' : undefined}
+                rel={child.openInNewTab ? 'noopener noreferrer' : undefined}
+                className="block px-4 py-2 text-muted-foreground hover:bg-accent hover:text-foreground rounded-lg"
+                onClick={onClose}
+              >
+                {child.label}
+              </Link>
+            ))}
+          </div>
+        )}
+      </div>
     );
   }
   return (
     <Link
-      href={url}
-      className="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg font-medium"
-      onClick={onClick}
+      href={link.url}
+      target={link.openInNewTab ? '_blank' : undefined}
+      rel={link.openInNewTab ? 'noopener noreferrer' : undefined}
+      className="block px-4 py-2 text-foreground hover:bg-accent rounded-lg font-medium"
+      onClick={onClose}
     >
-      {label}
+      {link.label}
     </Link>
   );
 };
 
 export default Header;
-

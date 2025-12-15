@@ -233,7 +233,14 @@ function normalizeHeader(data: StrapiHeader): Header {
       url: getStrapiMediaUrl(data.logo.url),
       alt: data.logo.alternativeText || 'Logo',
     } : undefined,
-    navigation: data.navigation || [],
+    navigation: (data.navigation || []).map((link, index) => ({
+      id: link.id,
+      order: index + 1,
+      label: link.label,
+      url: link.url,
+      openInNewTab: link.isExternal,
+      children: [],
+    })),
     ctaButton: data.ctaButton,
   };
 }
@@ -259,8 +266,8 @@ function normalizeFooter(data: StrapiFooter): Footer {
 function getDefaultHeader(): Header {
   return {
     navigation: [
-      { id: 1, label: 'Home', url: '/', isExternal: false },
-      { id: 2, label: 'About Us', url: '/about-us', isExternal: false },
+      { id: 1, order: 1, label: 'Home', url: '/', openInNewTab: false, children: [] },
+      { id: 2, order: 2, label: 'About Us', url: '/about-us', openInNewTab: false, children: [] },
     ],
     ctaButton: {
       label: 'Apply Now',
