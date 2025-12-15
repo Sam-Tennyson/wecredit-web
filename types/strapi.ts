@@ -76,7 +76,7 @@ export interface SEO {
   metaDescription: string;
   metaImage?: StrapiMedia;
   keywords?: string;
-  canonical?: string;
+  canonicalUrl?: string;
   scriptApplicationLdJson?: string | Record<string, unknown>;
 }
 
@@ -225,7 +225,6 @@ export interface Page extends PageBase {
   readingTime?: number;
   isFeatured: boolean;
   sidebar?: SidebarWidget[];
-  formWidget?: FormWidgetComponent;
   seo?: SEO;
   author?: Author;
   parent?: PageBase | null;

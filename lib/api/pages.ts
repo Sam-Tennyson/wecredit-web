@@ -62,7 +62,6 @@ const PAGE_POPULATE_CONFIG = {
       socialLinks: true,
     },
   },
-  formWidget: true,
   parent: true,
   children: true,
 };

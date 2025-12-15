@@ -23,13 +23,6 @@ const PageLayout = ({ page }: PageLayoutProps) => {
         <div className="space-y-8">
           <PageContent page={page} />
           
-          {/* Standalone Form Widget */}
-          {page.formWidget && (
-            <div className="mt-8">
-              <FormWidget widget={page.formWidget} />
-            </div>
-          )}
-          
           {hasSidebar && page.sidebar && (
             <div className="lg:hidden">
               <PageSidebar widgets={page.sidebar} />
@@ -53,13 +46,7 @@ const PageLayout = ({ page }: PageLayoutProps) => {
           {/* Main Content */}
           <div className={hasSidebar ? 'lg:col-span-8' : ''}>
             <PageContent page={page} />
-            
-            {/* Standalone Form Widget */}
-            {page.formWidget && (
-              <div className="mt-8">
-                <FormWidget widget={page.formWidget} />
-              </div>
-            )}
+          
           </div>
           
           {/* Sidebar */}

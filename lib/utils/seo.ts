@@ -17,7 +17,7 @@ export function generatePageMetadata(page: Page): Metadata {
   const seo = page.seo;
   const title = seo?.metaTitle || page.title;
   const description = seo?.metaDescription || page.metaDescription || page.excerpt || '';
-  const canonical = seo?.canonical || `${SITE_URL}${page.fullPath}`;
+  const canonicalUrl = seo?.canonicalUrl || `${SITE_URL}${page.fullPath}`;
   const imageUrl = getStrapiMediaUrl(seo?.metaImage?.url || page.featuredImage?.url) || `${SITE_URL}${DEFAULT_OG_IMAGE}`;
 
   const metadata: Metadata = {
@@ -25,12 +25,12 @@ export function generatePageMetadata(page: Page): Metadata {
     description,
     keywords: seo?.keywords?.split(',').map((k) => k.trim()),
     alternates: {
-      canonical,
+      canonical: canonicalUrl,
     },
     openGraph: {
       title,
       description,
-      url: canonical,
+      url: canonicalUrl,
       siteName: SITE_NAME,
       type: getOpenGraphType(page.pageType),
       images: [
