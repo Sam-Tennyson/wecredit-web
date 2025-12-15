@@ -43,6 +43,12 @@ const PAGE_POPULATE_CONFIG = {
       'widgets.form-widget': {
         populate: '*',
       },
+      'widgets.lead-capture-form': {
+        populate: '*',
+      },
+      'widgets.accordion-menu': {
+        populate: '*',
+      },
     },
   },
   seo: {

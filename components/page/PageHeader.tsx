@@ -21,11 +21,11 @@ const PageHeader = ({ page }: PageHeaderProps) => {
   return (
     <header className="mb-8">
       {/* Page Type Badge */}
-      {page.pageType !== 'standard' && (
+      {/* {page.pageType !== 'standard' && (
         <span className="inline-block px-3 py-1 text-xs font-medium uppercase tracking-wide text-blue-600 bg-blue-50 rounded-full mb-4">
           {page.pageType}
         </span>
-      )}
+      )} */}
 
       {/* Title */}
       <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">

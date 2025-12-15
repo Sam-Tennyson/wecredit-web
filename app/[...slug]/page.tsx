@@ -5,6 +5,7 @@ import { generatePageMetadata, generateJsonLd } from '@/lib/utils/seo';
 import PageLayout from '@/components/pages/page-layout';
 import DebugData from '@/components/shared/DebugData';
 import JsonLd from '@/components/seo/JsonLd';
+import { ClientDebugLogger } from '@/components/shared/ClientDebugLogger';
 
 /** Page component props */
 interface PageProps {
@@ -56,6 +57,7 @@ const CatchAllPage = async ({ params }: PageProps) => {
   
   return (
     <>
+      <ClientDebugLogger data={page} label="Page Data" />
       {jsonLd && <JsonLd data={jsonLd} />}
       <PageLayout page={page} />
       <DebugData data={page} title={`Page: ${page.fullPath}`} />

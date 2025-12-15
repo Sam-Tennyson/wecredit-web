@@ -113,7 +113,7 @@ export async function fetchFromStrapi<T>(
   params.append('status', status);
 
   const url = `${STRAPI_URL}/api/${endpoint}?${params.toString()}`;
-
+  console.log('[STRAPI URL]', url);
   // Start debug logging
   const startTime = Date.now();
   const logId = startApiLog(endpoint, url, {

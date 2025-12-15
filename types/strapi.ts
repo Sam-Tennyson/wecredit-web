@@ -77,7 +77,7 @@ export interface SEO {
   metaImage?: StrapiMedia;
   keywords?: string;
   canonical?: string;
-  scriptApplicationLdJson?: string;
+  scriptApplicationLdJson?: string | Record<string, unknown>;
 }
 
 // ============================================
@@ -123,12 +123,45 @@ export interface FormWidgetWidget {
   content: string;
 }
 
+export interface LeadCaptureFormWidget {
+  __component: 'widgets.lead-capture-form';
+  id: number;
+  title: string;
+  highlightedAmount: string;
+  countryCode: string;
+  placeholder: string;
+  buttonText: string;
+  redirectUrl: string;
+  termsText: string;
+  termsLinkText: string;
+  termsUrl: string | null;
+  brandName: string;
+}
+
+export interface AccordionMenuItem {
+  id: number;
+  label: string;
+  url: string;
+  openInNewTab: boolean;
+  order: number;
+}
+
+export interface AccordionMenuWidget {
+  __component: 'widgets.accordion-menu';
+  id: number;
+  title: string;
+  defaultExpanded: boolean;
+  groups: AccordionMenuItem[];
+}
+
 export type SidebarWidget =
   | RelatedLinksWidget
   | RecentPagesWidget
   | TextBlockWidget
   | BannerWidget
-  | FormWidgetWidget;
+  | FormWidgetWidget
+  | LeadCaptureFormWidget
+  | AccordionMenuWidget;
 
 // Standalone form widget (without __component)
 export interface FormWidgetComponent {

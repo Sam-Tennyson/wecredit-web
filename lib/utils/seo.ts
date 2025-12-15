@@ -81,7 +81,9 @@ export function generateJsonLd(page: Page): Record<string, unknown> | null {
   // If custom JSON-LD is provided, use it
   if (page.seo?.scriptApplicationLdJson) {
     try {
-      return JSON.parse(page.seo.scriptApplicationLdJson);
+      return typeof page.seo.scriptApplicationLdJson === 'string'
+        ? JSON.parse(page.seo.scriptApplicationLdJson)
+        : page.seo.scriptApplicationLdJson;
     } catch {
       console.warn('Invalid JSON-LD in page:', page.fullPath);
     }
