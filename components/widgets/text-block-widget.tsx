@@ -17,7 +17,7 @@ const TextBlockWidgetComponent = ({ widget }: TextBlockWidgetProps) => {
         <h3 className="text-lg font-bold mb-3 text-gray-900">{title}</h3>
       )}
       <div 
-        className="prose prose-sm max-w-none text-gray-700"
+        className="markdown-content-strapi text-sm"
         dangerouslySetInnerHTML={{ __html: content }}
       />
     </div>
