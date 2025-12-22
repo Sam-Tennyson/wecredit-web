@@ -358,7 +358,7 @@ export async function getPageBySlug(slug: string): Promise<Page | null> {
  */
 export function buildPagePath(page: StrapiPage): string {
   const buildPath = (p: StrapiPage, segments: string[] = []): string[] => {
-    segments.unshift(p.slug);
+    segments.unshift(p.slug || '');
     if (p.parent && p.parent.slug !== 'home') {
       return buildPath(p.parent, segments);
     }

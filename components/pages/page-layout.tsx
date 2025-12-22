@@ -1,19 +1,27 @@
 import PageContent from './page-content';
 import PageSidebar from './page-sidebar';
-import FormWidget from '@/components/widgets/form-widget';
-import type { Page } from '@/lib/api/strapi';
+import type { Breadcrumb, Page } from '@/lib/api/strapi';
 
 /** Props for PageLayout component */
 interface PageLayoutProps {
   page: Page;
+  breadcrumbs?: Breadcrumb[];
+}
+
+/**
+ * Extracts widgets from page using categoryWidget (new) or sidebar (legacy)
+ */
+function getPageWidgets(page: Page) {
+  return page.categoryWidget?.widgets || page.sidebar || [];
 }
 
 /**
  * Main page layout wrapper that combines content and sidebar
  * Adjusts layout based on page type and sidebar presence
  */
-const PageLayout = ({ page }: PageLayoutProps) => {
-  const hasSidebar = page.sidebar && page.sidebar.length > 0;
+const PageLayout = ({ page, breadcrumbs }: PageLayoutProps) => {
+  const widgets = getPageWidgets(page);
+  const hasSidebar = widgets.length > 0;
   const isHomePage = page.pageType === 'home';
   
   return (
@@ -21,18 +29,18 @@ const PageLayout = ({ page }: PageLayoutProps) => {
       {/* Home page: full width with optional sidebar below on mobile */}
       {isHomePage && (
         <div className="space-y-8">
-          <PageContent page={page} />
+          <PageContent page={page} breadcrumbs={breadcrumbs} />
           
-          {hasSidebar && page.sidebar && (
+          {hasSidebar && (
             <div className="lg:hidden">
-              <PageSidebar widgets={page.sidebar} />
+              <PageSidebar widgets={widgets} />
             </div>
           )}
-          {hasSidebar && page.sidebar && (
+          {hasSidebar && (
             <div className="hidden lg:block">
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-3">
-                  <PageSidebar widgets={page.sidebar} />
+                  <PageSidebar widgets={widgets} />
                 </div>
               </div>
             </div>
@@ -45,14 +53,13 @@ const PageLayout = ({ page }: PageLayoutProps) => {
         <div className={`grid grid-cols-1 ${hasSidebar ? 'lg:grid-cols-12' : ''} gap-8`}>
           {/* Main Content */}
           <div className={hasSidebar ? 'lg:col-span-8' : ''}>
-            <PageContent page={page} />
-          
+            <PageContent page={page} breadcrumbs={breadcrumbs} />
           </div>
           
           {/* Sidebar */}
-          {hasSidebar && page.sidebar && (
+          {hasSidebar && (
             <div className="lg:col-span-4">
-              <PageSidebar widgets={page.sidebar} />
+              <PageSidebar widgets={widgets} />
             </div>
           )}
         </div>

@@ -21,34 +21,47 @@ export type { Page, PageSummary, PageType, Breadcrumb };
 // ============================================
 
 /**
+ * Widget dynamic zone populate configuration
+ * Shared between categoryWidget and legacy sidebar
+ */
+const WIDGET_POPULATE_CONFIG = {
+  on: {
+    'widgets.related-links': {
+      populate: '*',
+    },
+    'widgets.recent-pages': {
+      populate: '*',
+    },
+    'widgets.text-block': {
+      populate: '*',
+    },
+    'widgets.banner': {
+      populate: '*',
+    },
+    'widgets.form-widget': {
+      populate: '*',
+    },
+    'widgets.lead-capture-form': {
+      populate: '*',
+    },
+    'widgets.accordion-menu': {
+      populate: '*',
+    },
+    'widgets.configurable-widget': {
+      populate: '*',
+    },
+  },
+};
+
+/**
  * Complete populate configuration for Pages with Strapi v5 dynamic zones
  * Uses the 'on' syntax for proper dynamic zone population
  */
 const PAGE_POPULATE_CONFIG = {
   featuredImage: true,
-  sidebar: {
-    on: {
-      'widgets.related-links': {
-        populate: '*',
-      },
-      'widgets.recent-pages': {
-        populate: '*',
-      },
-      'widgets.text-block': {
-        populate: '*',
-      },
-      'widgets.banner': {
-        populate: '*',
-      },
-      'widgets.form-widget': {
-        populate: '*',
-      },
-      'widgets.lead-capture-form': {
-        populate: '*',
-      },
-      'widgets.accordion-menu': {
-        populate: '*',
-      },
+  categoryWidget: {
+    populate: {
+      widgets: WIDGET_POPULATE_CONFIG,
     },
   },
   seo: {
@@ -64,6 +77,11 @@ const PAGE_POPULATE_CONFIG = {
   },
   parent: true,
   children: true,
+  breadcrumbPath: {
+    populate: {
+      path: true,
+    },
+  },
 };
 
 // ============================================
@@ -127,7 +145,7 @@ export async function getPageById(documentId: string): Promise<Page | null> {
 export async function getAllPages(): Promise<Page[]> {
   const response = await fetchFromStrapi<StrapiResponse<Page[]>>('pages', {
     populate: PAGE_POPULATE_CONFIG,
-    sort: ['pageType:asc', 'order:asc', 'title:asc'],
+    sort: ['order:asc', 'title:asc'],
     pagination: { pageSize: 1000 },
     revalidate: 60,
   });
@@ -309,25 +327,37 @@ export async function searchPages(
  * Build breadcrumb trail from page hierarchy
  */
 export async function getBreadcrumbs(page: Page): Promise<Breadcrumb[]> {
+  const apiPath = page.breadcrumbPath?.path || [];
+  if (apiPath.length > 0) {
+    const sortedPath = [...apiPath].sort((first, second) => first.order - second.order);
+    const apiBreadcrumbs = sortedPath.map((item) => ({
+      title: item.label,
+      path: item.url,
+    }));
+    const hasHome = apiBreadcrumbs.some((breadcrumb) => breadcrumb.path === '/');
+    if (!hasHome) {
+      apiBreadcrumbs.unshift({ title: 'Home', path: '/' });
+    }
+    const hasCurrentPage = apiBreadcrumbs.some((breadcrumb) => breadcrumb.path === page.fullPath);
+    if (!hasCurrentPage) {
+      apiBreadcrumbs.push({ title: page.title, path: page.fullPath });
+    }
+    return apiBreadcrumbs;
+  }
   const breadcrumbs: Breadcrumb[] = [];
   let currentPage: Page | null = page;
-
   while (currentPage) {
     breadcrumbs.unshift({
       title: currentPage.title,
       path: currentPage.fullPath,
     });
-
     if (currentPage.parent && (currentPage.parent as PageBase).fullPath) {
       currentPage = await getPageByFullPath((currentPage.parent as PageBase).fullPath);
     } else {
       currentPage = null;
     }
   }
-
-  // Add home at the beginning
   breadcrumbs.unshift({ title: 'Home', path: '/' });
-
   return breadcrumbs;
 }
 

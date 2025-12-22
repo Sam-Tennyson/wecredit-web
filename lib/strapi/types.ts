@@ -255,24 +255,32 @@ export interface RecentPagesWidget {
   showImages: boolean;
 }
 
+/** Configurable Widget Component */
+export interface ConfigurableWidget {
+  __component: 'widgets.configurable-widget';
+  id: number;
+  title?: string;
+  config?: Record<string, unknown>;
+}
+
 /** Union type for all page widgets */
-export type PageWidget = BannerWidget | TextBlockWidget | RelatedLinksWidget | RecentPagesWidget;
+export type PageWidget = BannerWidget | TextBlockWidget | RelatedLinksWidget | RecentPagesWidget | ConfigurableWidget;
 
 /** Strapi Page from API (v5 format - flattened) */
 export interface StrapiPage {
   id: number;
   documentId: string;
   title: string;
-  slug: string;
-  pageType: 'home' | 'pillar' | 'category' | 'subcategory';
-  level: number;
-  order: number;
-  content: string;
-  metaDescription: string;
-  sidebar: PageWidget[];
-  parent: StrapiPage | null;
-  children: StrapiPage[];
-  featuredImage: StrapiMedia | null;
+  slug?: string | null;
+  pageType?: 'home' | 'pillar' | 'category' | 'subcategory';
+  level?: number;
+  order?: number;
+  content?: string;
+  metaDescription?: string;
+  sidebar?: PageWidget[];
+  parent?: StrapiPage | null;
+  children?: StrapiPage[];
+  featuredImage?: StrapiMedia | null;
   seo?: SeoComponent;
   createdAt: string;
   updatedAt: string;
@@ -285,16 +293,16 @@ export interface Page {
   documentId: string;
   type: 'page';
   title: string;
-  slug: string;
+  slug?: string | null;
   fullPath: string;
-  pageType: 'home' | 'pillar' | 'category' | 'subcategory';
-  level: number;
-  order: number;
-  content: string;
-  metaDescription: string;
-  sidebar: PageWidget[];
-  parent: Page | null;
-  children: Page[];
+  pageType?: 'home' | 'pillar' | 'category' | 'subcategory';
+  level?: number;
+  order?: number;
+  content?: string;
+  metaDescription?: string;
+  sidebar?: PageWidget[];
+  parent?: Page | null;
+  children?: Page[];
   featuredImage?: {
     url: string;
     alt: string;

@@ -12,6 +12,7 @@ import type {
   Author, 
   Breadcrumb,
   SidebarWidget,
+  CategoryWidget,
   FormWidgetWidget,
   FormWidgetComponent,
 } from '@/types/strapi';
@@ -31,6 +32,7 @@ export type {
   Author, 
   Breadcrumb,
   SidebarWidget,
+  CategoryWidget,
   FormWidgetWidget,
   FormWidgetComponent,
 };
@@ -114,6 +116,7 @@ export async function fetchFromStrapi<T>(
 
   const url = `${STRAPI_URL}/api/${endpoint}?${params.toString()}`;
   console.log('[STRAPI URL]', url);
+
   // Start debug logging
   const startTime = Date.now();
   const logId = startApiLog(endpoint, url, {

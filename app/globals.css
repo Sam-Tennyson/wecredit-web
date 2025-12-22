@@ -77,6 +77,36 @@
   @apply bg-blue-600 text-white px-4 py-2 rounded-md font-medium hover:bg-blue-800 transition-colors text-sm;
 }
 
+.markdown-content-strapi > table {
+  @apply w-full border-collapse border border-gray-300 my-4;
+}
+
+.markdown-content-strapi > table th {
+  @apply bg-gray-100 px-4 py-2 text-left;
+}
+
+.markdown-content-strapi > table td {
+  @apply border border-gray-300 px-4 py-2;
+}
+
+.markdown-content-strapi > table tr:nth-child(even) {
+  @apply bg-gray-50;
+}
+
+.markdown-content-strapi > table tr:hover {
+  @apply bg-gray-100;
+}
+
+.markdown-content-strapi > table th:first-child,
+.markdown-content-strapi > table td:first-child {
+  @apply pl-4;
+}
+
+.markdown-content-strapi > table th:last-child,
+.markdown-content-strapi > table td:last-child {
+  @apply pr-4;
+}
+
 :root {
   --radius: 0.625rem;
   --background: oklch(1 0 0);

@@ -154,6 +154,13 @@ export interface AccordionMenuWidget {
   groups: AccordionMenuItem[];
 }
 
+export interface ConfigurableWidget {
+  __component: 'widgets.configurable-widget';
+  id: number;
+  title?: string;
+  config?: Record<string, unknown>;
+}
+
 export type SidebarWidget =
   | RelatedLinksWidget
   | RecentPagesWidget
@@ -161,7 +168,8 @@ export type SidebarWidget =
   | BannerWidget
   | FormWidgetWidget
   | LeadCaptureFormWidget
-  | AccordionMenuWidget;
+  | AccordionMenuWidget
+  | ConfigurableWidget;
 
 // Standalone form widget (without __component)
 export interface FormWidgetComponent {
@@ -207,11 +215,11 @@ export interface PageBase {
   id: number;
   documentId: string;
   title: string;
-  slug: string;
+  slug?: string | null;
   fullPath: string;
-  useCustomFullPath: boolean;
-  order: number;
-  pageType: PageType;
+  useCustomFullPath?: boolean;
+  order?: number;
+  pageType?: PageType;
   createdAt: string;
   updatedAt: string;
   publishedAt: string;
@@ -222,21 +230,24 @@ export interface Page extends PageBase {
   excerpt?: string;
   featuredImage?: StrapiMedia;
   content?: string;
-  readingTime?: number;
-  isFeatured: boolean;
+  readingTime?: number | null;
+  isFeatured?: boolean;
+  hideInBreadcrumb?: boolean;
   sidebar?: SidebarWidget[];
+  categoryWidget?: CategoryWidget | null;
   seo?: SEO;
   author?: Author;
   parent?: PageBase | null;
   children?: PageBase[];
+  breadcrumbPath?: BreadcrumbPath | null;
 }
 
 // For listing/card views (lighter payload)
 export interface PageSummary extends PageBase {
   excerpt?: string;
   featuredImage?: StrapiMedia;
-  readingTime?: number;
-  isFeatured: boolean;
+  readingTime?: number | null;
+  isFeatured?: boolean;
   author?: Pick<Author, 'id' | 'name' | 'slug' | 'avatar'>;
 }
 
@@ -247,6 +258,34 @@ export interface PageSummary extends PageBase {
 export interface Breadcrumb {
   title: string;
   path: string;
+}
+
+export interface BreadcrumbPathItem {
+  id: number;
+  label: string;
+  url: string;
+  order: number;
+}
+
+export interface BreadcrumbPath {
+  id: number;
+  documentId: string;
+  name?: string;
+  path: BreadcrumbPathItem[];
+}
+
+// ============================================
+// CATEGORY WIDGET (Widget Collection Relation)
+// ============================================
+
+export interface CategoryWidget {
+  id: number;
+  documentId: string;
+  name: string;
+  widgets: SidebarWidget[];
+  createdAt?: string;
+  updatedAt?: string;
+  publishedAt?: string;
 }
 
 // ============================================

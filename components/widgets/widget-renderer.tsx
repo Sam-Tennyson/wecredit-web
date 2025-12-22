@@ -6,6 +6,7 @@ import RecentPagesWidgetComponent from './recent-pages-widget';
 import FormWidget from './form-widget';
 import LeadCaptureFormWidget from './lead-capture-form-widget';
 import AccordionMenuWidgetComponent from './accordion-menu-widget';
+import ConfigurableWidgetComponent from './configurable-widget';
 
 /** Props for WidgetRenderer component */
 interface WidgetRendererProps {
@@ -38,6 +39,9 @@ const WidgetRenderer = ({ widget }: WidgetRendererProps) => {
     
     case 'widgets.accordion-menu':
       return <AccordionMenuWidgetComponent widget={widget} />;
+    
+    case 'widgets.configurable-widget':
+      return <ConfigurableWidgetComponent widget={widget} />;
     
     default:
       console.warn(`Unknown widget component: ${(widget as SidebarWidget).__component}`);

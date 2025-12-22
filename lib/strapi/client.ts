@@ -3,7 +3,7 @@
  * Base fetch wrapper with authentication and error handling
  */
 
-const STRAPI_URL = process.env.STRAPI_URL || 'http://localhost:1337';
+const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL || 'http://localhost:1337';
 const STRAPI_API_TOKEN = process.env.STRAPI_API_TOKEN;
 
 /** Custom error for Strapi API failures */
@@ -24,6 +24,8 @@ export interface FetchStrapiOptions {
   revalidate?: number;
   /** Additional query parameters */
   params?: Record<string, string>;
+  /** Publication status filter (defaults to 'published') */
+  status?: 'published' | 'draft';
 }
 
 /**
@@ -36,9 +38,11 @@ export async function fetchStrapi<T>(
   endpoint: string,
   options: FetchStrapiOptions = {}
 ): Promise<T> {
-  const { revalidate, params } = options;
-  const url = buildUrl(endpoint, params);
+  const { revalidate, params, status = 'published' } = options;
+  const allParams = { ...params, status };
+  const url = buildUrl(endpoint, allParams);
   const headers = buildHeaders();
+  console.log('[STRAPI CLIENT URL]', url);
   const response = await fetch(url, {
     headers,
     cache: 'no-store',

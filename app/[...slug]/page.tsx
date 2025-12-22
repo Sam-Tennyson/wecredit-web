@@ -1,11 +1,12 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getPageByFullPath, getAllPagePaths, getBreadcrumbs } from '@/lib/api/pages';
+import { getPageByFullPath, getAllPagePaths } from '@/lib/api/pages';
 import { generatePageMetadata, generateJsonLd } from '@/lib/utils/seo';
 import PageLayout from '@/components/pages/page-layout';
 import DebugData from '@/components/shared/DebugData';
 import JsonLd from '@/components/seo/JsonLd';
 import { ClientDebugLogger } from '@/components/shared/ClientDebugLogger';
+import type { Breadcrumb, Page } from '@/lib/api/strapi';
 
 /** Page component props */
 interface PageProps {
@@ -48,21 +49,43 @@ const CatchAllPage = async ({ params }: PageProps) => {
   const { slug } = await params;
   const fullPath = `/${slug?.join('/') || ''}`;
   const page = await getPageByFullPath(fullPath);
-  
   if (!page) {
     notFound();
   }
-  
+  const breadcrumbs = buildPageBreadcrumbs(page);
   const jsonLd = generateJsonLd(page);
-  
   return (
     <>
       <ClientDebugLogger data={page} label="Page Data" />
       {jsonLd && <JsonLd data={jsonLd} />}
-      <PageLayout page={page} />
+      <PageLayout page={page} breadcrumbs={breadcrumbs} />
       <DebugData data={page} title={`Page: ${page.fullPath}`} />
     </>
   );
 };
+
+function buildPageBreadcrumbs(page: Page): Breadcrumb[] {
+  const apiPath = page.breadcrumbPath?.path || [];
+  if (apiPath.length > 0) {
+    const sortedPath = [...apiPath].sort((first, second) => first.order - second.order);
+    const apiBreadcrumbs = sortedPath.map((item) => ({
+      title: item.label,
+      path: item.url,
+    }));
+    const hasHome = apiBreadcrumbs.some((breadcrumb) => breadcrumb.path === '/');
+    if (!hasHome) {
+      apiBreadcrumbs.unshift({ title: 'Home', path: '/' });
+    }
+    const hasCurrentPage = apiBreadcrumbs.some((breadcrumb) => breadcrumb.path === page.fullPath);
+    if (!hasCurrentPage) {
+      apiBreadcrumbs.push({ title: page.title, path: page.fullPath });
+    }
+    return apiBreadcrumbs;
+  }
+  return [
+    { title: 'Home', path: '/' },
+    { title: page.title, path: page.fullPath },
+  ];
+}
 
 export default CatchAllPage;
