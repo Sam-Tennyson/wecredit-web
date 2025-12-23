@@ -272,7 +272,6 @@ export interface StrapiPage {
   documentId: string;
   title: string;
   slug?: string | null;
-  pageType?: 'home' | 'pillar' | 'category' | 'subcategory';
   level?: number;
   order?: number;
   content?: string;
@@ -295,7 +294,6 @@ export interface Page {
   title: string;
   slug?: string | null;
   fullPath: string;
-  pageType?: 'home' | 'pillar' | 'category' | 'subcategory';
   level?: number;
   order?: number;
   content?: string;

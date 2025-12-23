@@ -16,7 +16,7 @@ interface RecentPagesWidgetProps {
 const RecentPagesWidgetComponent = async ({ widget, excludePageId }: RecentPagesWidgetProps) => {
   const { title, count, showImages } = widget;
   
-  const recentPages = await getRecentPages(count, ['blog', 'guide', 'resource']);
+  const recentPages = await getRecentPages(count);
   
   if (recentPages.length === 0) {
     return null;

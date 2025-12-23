@@ -15,7 +15,6 @@ interface AllPagesAndLinksDisplayProps {
  * Shows complete navigation and content structure
  */
 const AllPagesAndLinksDisplay = ({ pages, header, footer }: AllPagesAndLinksDisplayProps) => {
-  const pagesByType = groupPagesByType(pages);
   const totalPages = pages.length;
   const totalSidebarLinks = countTotalSidebarLinks(pages);
   
@@ -69,27 +68,15 @@ const AllPagesAndLinksDisplay = ({ pages, header, footer }: AllPagesAndLinksDisp
         )}
       </NavigationSection>
 
-      {/* All Pages by Type */}
+      {/* All Pages */}
       <NavigationSection
         title={`All Pages (${totalPages} total)`}
         icon="📄"
         color="green"
       >
-        <div className="space-y-6">
-          {Object.entries(pagesByType).map(([type, pagesOfType]) => (
-            <div key={type} className="border border-green-200 rounded-lg p-6 bg-green-50">
-              <h3 className="text-xl font-bold text-gray-900 mb-4 capitalize flex items-center gap-2">
-                <span className="px-3 py-1 bg-green-600 text-white rounded-full text-sm">
-                  {pagesOfType.length}
-                </span>
-                {type} Pages
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {pagesOfType.map((page) => (
-                  <PageCard key={page.documentId} page={page} />
-                ))}
-              </div>
-            </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {pages.map((page) => (
+            <PageCard key={page.documentId} page={page} />
           ))}
         </div>
       </NavigationSection>
@@ -193,7 +180,6 @@ const AllPagesAndLinksDisplay = ({ pages, header, footer }: AllPagesAndLinksDisp
             <h3 className="font-bold text-gray-900 mb-4">Pages API Data</h3>
             <ul className="space-y-2 text-sm text-gray-700">
               <li>• <strong>Total Pages:</strong> {totalPages}</li>
-              <li>• <strong>Page Types:</strong> {Object.keys(pagesByType).join(', ')}</li>
               <li>• <strong>Pages with Children:</strong> {pages.filter(p => p.children && p.children.length > 0).length}</li>
               <li>• <strong>Pages with Sidebar:</strong> {pages.filter(p => hasSidebarLinks(p)).length}</li>
               <li>• <strong>Pages with Images:</strong> {pages.filter(p => p.featuredImage).length}</li>
@@ -280,9 +266,6 @@ const PageCard = ({ page }: PageCardProps) => {
       </div>
       <p className="text-sm text-gray-600 mb-2 truncate">{page.fullPath}</p>
       <div className="flex flex-wrap gap-2">
-        <span className="text-xs px-2 py-1 bg-green-200 text-green-800 rounded">
-          {page.pageType}
-        </span>
         {page.children && page.children.length > 0 && (
           <span className="text-xs px-2 py-1 bg-blue-200 text-blue-800 rounded">
             {page.children.length} children
@@ -457,17 +440,6 @@ const StatCard = ({ label, count, color }: StatCardProps) => {
 };
 
 /** Helper Functions */
-
-function groupPagesByType(pages: Page[]): Record<string, Page[]> {
-  return pages.reduce((acc, page) => {
-    const type = page.pageType || 'standard';
-    if (!acc[type]) {
-      acc[type] = [];
-    }
-    acc[type].push(page);
-    return acc;
-  }, {} as Record<string, Page[]>);
-}
 
 function hasSidebarLinks(page: Page): boolean {
   if (!page.sidebar || page.sidebar.length === 0) return false;

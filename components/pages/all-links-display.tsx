@@ -89,9 +89,6 @@ const AllLinksDisplay = ({ page, header, footer }: AllLinksDisplayProps) => {
                     </h3>
                     <p className="text-sm text-gray-600 truncate">{child.fullPath}</p>
                     <div className="flex gap-2 mt-2">
-                      <span className="text-xs px-2 py-1 bg-white rounded border border-green-300 text-green-700">
-                        {child.pageType}
-                      </span>
                       <span className="text-xs px-2 py-1 bg-white rounded border border-gray-300 text-gray-600">
                         Order: {child.order}
                       </span>

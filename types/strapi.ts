@@ -207,17 +207,6 @@ export interface Author {
 // PAGE
 // ============================================
 
-export type PageType =
-  | 'home'
-  | 'pillar'
-  | 'category'
-  | 'subcategory'
-  | 'guide'
-  | 'blog'
-  | 'resource'
-  | 'tool'
-  | 'standard';
-
 export interface PageBase {
   id: number;
   documentId: string;
@@ -226,7 +215,6 @@ export interface PageBase {
   fullPath: string;
   useCustomFullPath?: boolean;
   order?: number;
-  pageType?: PageType;
   createdAt: string;
   updatedAt: string;
   publishedAt: string;

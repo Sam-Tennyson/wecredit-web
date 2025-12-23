@@ -7,14 +7,13 @@ import {
   fetchFromStrapi,
   Page,
   PageSummary,
-  PageType,
   Breadcrumb,
   StrapiResponse,
   PageBase,
 } from '@/lib/api/strapi';
 
 // Export types for convenience
-export type { Page, PageSummary, PageType, Breadcrumb };
+export type { Page, PageSummary, Breadcrumb };
 
 // ============================================
 // POPULATE CONFIGURATIONS
@@ -158,52 +157,22 @@ export async function getAllPages(): Promise<Page[]> {
 
 /**
  * Fetch all page paths for static generation
+ * Returns empty array if Strapi is unavailable (pages will be generated on-demand)
  */
 export async function getAllPagePaths(): Promise<string[]> {
-  const response = await fetchFromStrapi<StrapiResponse<{ fullPath: string }[]>>('pages', {
-    fields: ['fullPath'],
-    pagination: { pageSize: 1000 },
-    revalidate: 3600, // 1 hour
-  });
-
-  return response.data
-    .map((page) => page.fullPath)
-    .filter((path): path is string => Boolean(path));
-}
-
-/**
- * Fetch pages by type with pagination
- */
-export async function getPagesByType(
-  pageType: PageType,
-  options?: {
-    limit?: number;
-    page?: number;
-    featured?: boolean;
-    excludeId?: string;
+  try {
+    const response = await fetchFromStrapi<StrapiResponse<{ fullPath: string }[]>>('pages', {
+      fields: ['fullPath'],
+      pagination: { pageSize: 1000 },
+      revalidate: 3600, // 1 hour
+    });
+    return response.data
+      .map((page) => page.fullPath)
+      .filter((path): path is string => Boolean(path));
+  } catch (error) {
+    console.warn('[getAllPagePaths] Strapi unavailable during build, pages will be generated on-demand:', error);
+    return [];
   }
-): Promise<StrapiResponse<PageSummary[]>> {
-  const filters: Record<string, unknown> = {
-    pageType: { $eq: pageType },
-  };
-
-  if (options?.featured !== undefined) {
-    filters.isFeatured = { $eq: options.featured };
-  }
-
-  if (options?.excludeId) {
-    filters.documentId = { $ne: options.excludeId };
-  }
-
-  return fetchFromStrapi<StrapiResponse<PageSummary[]>>('pages', {
-    filters,
-    populate: PAGE_POPULATE_CONFIG,
-    sort: ['order:asc', 'publishedAt:desc'],
-    pagination: {
-      page: options?.page || 1,
-      pageSize: options?.limit || 10,
-    },
-  });
 }
 
 /**
@@ -253,18 +222,8 @@ export async function getSiblingPages(
 /**
  * Fetch recent pages for widgets
  */
-export async function getRecentPages(
-  count: number = 5,
-  pageTypes?: PageType[]
-): Promise<PageSummary[]> {
-  const filters: Record<string, unknown> = {};
-
-  if (pageTypes && pageTypes.length > 0) {
-    filters.pageType = { $in: pageTypes };
-  }
-
+export async function getRecentPages(count: number = 5): Promise<PageSummary[]> {
   const response = await fetchFromStrapi<StrapiResponse<PageSummary[]>>('pages', {
-    filters,
     populate: PAGE_POPULATE_CONFIG,
     sort: ['publishedAt:desc'],
     pagination: { pageSize: count },
@@ -276,20 +235,11 @@ export async function getRecentPages(
 /**
  * Fetch featured pages
  */
-export async function getFeaturedPages(
-  limit: number = 6,
-  pageTypes?: PageType[]
-): Promise<PageSummary[]> {
-  const filters: Record<string, unknown> = {
-    isFeatured: { $eq: true },
-  };
-
-  if (pageTypes && pageTypes.length > 0) {
-    filters.pageType = { $in: pageTypes };
-  }
-
+export async function getFeaturedPages(limit: number = 6): Promise<PageSummary[]> {
   const response = await fetchFromStrapi<StrapiResponse<PageSummary[]>>('pages', {
-    filters,
+    filters: {
+      isFeatured: { $eq: true },
+    },
     populate: PAGE_POPULATE_CONFIG,
     sort: ['order:asc', 'publishedAt:desc'],
     pagination: { pageSize: limit },
@@ -367,20 +317,12 @@ export async function getBreadcrumbs(page: Page): Promise<Breadcrumb[]> {
 /**
  * Get navigation tree (for menus)
  */
-export async function getNavigationTree(
-  rootPageType?: PageType
-): Promise<PageSummary[]> {
-  const filters: Record<string, unknown> = {
-    parent: { $null: true },
-  };
-
-  if (rootPageType) {
-    filters.pageType = { $eq: rootPageType };
-  }
-
+export async function getNavigationTree(): Promise<PageSummary[]> {
   const response = await fetchFromStrapi<StrapiResponse<PageSummary[]>>('pages', {
-    filters,
-    fields: ['id', 'documentId', 'title', 'slug', 'fullPath', 'pageType', 'order'],
+    filters: {
+      parent: { $null: true },
+    },
+    fields: ['id', 'documentId', 'title', 'slug', 'fullPath', 'order'],
     sort: ['order:asc', 'title:asc'],
   });
 

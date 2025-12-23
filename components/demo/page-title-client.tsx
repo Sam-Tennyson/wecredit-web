@@ -28,7 +28,7 @@ export function PageTitleClient() {
         {page?.title}
       </p>
       <p className="text-green-700 text-xs mt-2">
-        Page ID: {page?.documentId} | Type: {page?.pageType || 'standard'}
+        Page ID: {page?.documentId}
       </p>
     </div>
   );

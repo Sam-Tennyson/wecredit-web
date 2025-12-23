@@ -32,7 +32,7 @@ export function generatePageMetadata(page: Page): Metadata {
       description,
       url: canonicalUrl,
       siteName: SITE_NAME,
-      type: getOpenGraphType(page.pageType),
+      type: 'website',
       images: [
         {
           url: imageUrl,
@@ -41,7 +41,7 @@ export function generatePageMetadata(page: Page): Metadata {
           alt: title,
         },
       ],
-      ...(page.pageType === 'blog' && page.author && {
+      ...(page.author && {
         authors: [page.author.name],
       }),
       ...(page.publishedAt && {
@@ -67,14 +67,6 @@ export function generatePageMetadata(page: Page): Metadata {
 }
 
 /**
- * Get OpenGraph type based on page type
- */
-function getOpenGraphType(pageType: string): 'website' | 'article' {
-  const articleTypes = ['blog', 'guide', 'resource'];
-  return articleTypes.includes(pageType) ? 'article' : 'website';
-}
-
-/**
  * Generate JSON-LD structured data
  */
 export function generateJsonLd(page: Page): Record<string, unknown> | null {
@@ -89,42 +81,12 @@ export function generateJsonLd(page: Page): Record<string, unknown> | null {
     }
   }
 
-  // Generate default JSON-LD based on page type
-  const baseJsonLd = {
+  // Generate default WebPage JSON-LD
+  return {
     '@context': 'https://schema.org',
+    '@type': 'WebPage',
     url: `${SITE_URL}${page.fullPath}`,
     name: page.title,
     description: page.seo?.metaDescription || page.metaDescription || page.excerpt,
   };
-
-  if (page.pageType === 'blog' || page.pageType === 'guide') {
-    return {
-      ...baseJsonLd,
-      '@type': 'Article',
-      headline: page.title,
-      image: getStrapiMediaUrl(page.featuredImage?.url),
-      datePublished: page.publishedAt,
-      dateModified: page.updatedAt,
-      ...(page.author && {
-        author: {
-          '@type': 'Person',
-          name: page.author.name,
-          ...(page.author.socialLinks?.website && {
-            url: page.author.socialLinks.website,
-          }),
-        },
-      }),
-      publisher: {
-        '@type': 'Organization',
-        name: SITE_NAME,
-        url: SITE_URL,
-      },
-    };
-  }
-
-  return {
-    ...baseJsonLd,
-    '@type': 'WebPage',
-  };
 }
-

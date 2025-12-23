@@ -382,7 +382,6 @@ function normalizePage(data: StrapiPage): Page {
     title: data.title,
     slug: data.slug,
     fullPath,
-    pageType: data.pageType,
     level: data.level,
     order: data.order,
     content: data.content || '',

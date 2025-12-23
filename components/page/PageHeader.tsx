@@ -16,17 +16,10 @@ interface PageHeaderProps {
  * Page header with metadata, author info, and featured image
  */
 const PageHeader = ({ page }: PageHeaderProps) => {
-  const showMeta = ['blog', 'guide', 'resource'].includes(page.pageType);
+  const hasMeta = page.author || page.publishedAt || page.readingTime;
 
   return (
     <header className="mb-8">
-      {/* Page Type Badge */}
-      {/* {page.pageType !== 'standard' && (
-        <span className="inline-block px-3 py-1 text-xs font-medium uppercase tracking-wide text-blue-600 bg-blue-50 rounded-full mb-4">
-          {page.pageType}
-        </span>
-      )} */}
-
       {/* Title */}
       <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
         {page.title}
@@ -37,8 +30,8 @@ const PageHeader = ({ page }: PageHeaderProps) => {
         <p className="text-xl text-gray-600 mb-6">{page.excerpt}</p>
       )}
 
-      {/* Meta Info */}
-      {showMeta && (
+      {/* Meta Info - shown when author, date, or reading time exists */}
+      {hasMeta && (
         <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 mb-6">
           {/* Author */}
           {page.author && (
