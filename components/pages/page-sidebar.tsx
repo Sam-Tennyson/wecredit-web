@@ -16,11 +16,11 @@ const PageSidebar = ({ widgets, currentPageId }: PageSidebarProps) => {
   }
   
   return (
-    <aside className="sticky top-8 space-y-6">
+    <div className="space-y-6">
       {widgets.map((widget, index) => (
         <WidgetRenderer key={`${widget.__component}-${widget.id || index}`} widget={widget} />
       ))}
-    </aside>
+    </div>
   );
 };
 

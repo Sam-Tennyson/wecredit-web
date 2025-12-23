@@ -285,11 +285,32 @@ export interface BreadcrumbPath {
 // CATEGORY WIDGET (Widget Collection Relation)
 // ============================================
 
+/** Related link with group for categorization in CategoryWidget */
+export interface CategoryRelatedLink {
+  id: number;
+  documentId: string;
+  label: string;
+  url: string;
+  openInNewTab: boolean;
+  order: number;
+  group: string;
+  createdAt?: string;
+  updatedAt?: string;
+  publishedAt?: string;
+}
+
+/** Grouped links structure for rendering */
+export interface GroupedLinks {
+  groupName: string;
+  links: CategoryRelatedLink[];
+}
+
 export interface CategoryWidget {
   id: number;
   documentId: string;
   name: string;
   widgets: SidebarWidget[];
+  relatedLinks?: CategoryRelatedLink[];
   createdAt?: string;
   updatedAt?: string;
   publishedAt?: string;

@@ -62,6 +62,9 @@ const PAGE_POPULATE_CONFIG = {
   categoryWidget: {
     populate: {
       widgets: WIDGET_POPULATE_CONFIG,
+      relatedLinks: {
+        populate: '*',
+      },
     },
   },
   seo: {

@@ -1,5 +1,6 @@
 import PageContent from './page-content';
 import PageSidebar from './page-sidebar';
+import GroupedRelatedLinksWidget from '@/components/widgets/grouped-related-links-widget';
 import type { Breadcrumb, Page } from '@/lib/api/strapi';
 
 /** Props for PageLayout component */
@@ -16,12 +17,20 @@ function getPageWidgets(page: Page) {
 }
 
 /**
+ * Extracts grouped related links from categoryWidget
+ */
+function getGroupedRelatedLinks(page: Page) {
+  return page.categoryWidget?.relatedLinks || [];
+}
+
+/**
  * Main page layout wrapper that combines content and sidebar
  * Adjusts layout based on page type and sidebar presence
  */
 const PageLayout = ({ page, breadcrumbs }: PageLayoutProps) => {
   const widgets = getPageWidgets(page);
-  const hasSidebar = widgets.length > 0;
+  const groupedRelatedLinks = getGroupedRelatedLinks(page);
+  const hasSidebar = widgets.length > 0 || groupedRelatedLinks.length > 0;
   const isHomePage = page.pageType === 'home';
   
   return (
@@ -32,15 +41,25 @@ const PageLayout = ({ page, breadcrumbs }: PageLayoutProps) => {
           <PageContent page={page} breadcrumbs={breadcrumbs} />
           
           {hasSidebar && (
-            <div className="lg:hidden">
-              <PageSidebar widgets={widgets} />
+            <div className="lg:hidden space-y-6">
+              {widgets.length > 0 && <PageSidebar widgets={widgets} />}
+              {groupedRelatedLinks.length > 0 && (
+                <GroupedRelatedLinksWidget
+                  links={groupedRelatedLinks}
+                />
+              )}
             </div>
           )}
           {hasSidebar && (
             <div className="hidden lg:block">
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div className="lg:col-span-3">
-                  <PageSidebar widgets={widgets} />
+                <div className="lg:col-span-3 space-y-6">
+                  {widgets.length > 0 && <PageSidebar widgets={widgets} />}
+                  {groupedRelatedLinks.length > 0 && (
+                    <GroupedRelatedLinksWidget
+                      links={groupedRelatedLinks}
+                    />
+                  )}
                 </div>
               </div>
             </div>
@@ -58,9 +77,16 @@ const PageLayout = ({ page, breadcrumbs }: PageLayoutProps) => {
           
           {/* Sidebar */}
           {hasSidebar && (
-            <div className="lg:col-span-4">
-              <PageSidebar widgets={widgets} />
-            </div>
+            <aside className="lg:col-span-4">
+              <div className="sticky top-8 space-y-6">
+                {widgets.length > 0 && <PageSidebar widgets={widgets} />}
+                {groupedRelatedLinks.length > 0 && (
+                  <GroupedRelatedLinksWidget
+                    links={groupedRelatedLinks}
+                  />
+                )}
+              </div>
+            </aside>
           )}
         </div>
       )}
