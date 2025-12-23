@@ -6,6 +6,7 @@ import PageLayout from '@/components/pages/page-layout';
 import DebugData from '@/components/shared/DebugData';
 import JsonLd from '@/components/seo/JsonLd';
 import { ClientDebugLogger } from '@/components/shared/ClientDebugLogger';
+import { PageDataProvider } from '@/providers/page-data-provider';
 import type { Breadcrumb, Page } from '@/lib/api/strapi';
 
 /** Page component props */
@@ -55,12 +56,11 @@ const CatchAllPage = async ({ params }: PageProps) => {
   const breadcrumbs = buildPageBreadcrumbs(page);
   const jsonLd = generateJsonLd(page);
   return (
-    <>
+    <PageDataProvider data={page}>
       <ClientDebugLogger data={page} label="Page Data" />
       {jsonLd && <JsonLd data={jsonLd} />}
       <PageLayout page={page} breadcrumbs={breadcrumbs} />
-      <DebugData data={page} title={`Page: ${page.fullPath}`} />
-    </>
+    </PageDataProvider>
   );
 };
 
