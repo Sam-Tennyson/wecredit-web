@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
 import { AccordionMenuWidget } from '@/types/strapi';
+import LinkItem from './shared/link-item';
 
 /** Props for AccordionMenuWidget component */
 interface AccordionMenuWidgetProps {
@@ -61,17 +61,12 @@ const AccordionMenuWidgetComponent = ({ widget }: AccordionMenuWidgetProps) => {
           <ul className="space-y-2">
             {sortedGroups.map((item) => (
               <li key={item.id}>
-                <Link
-                  href={item.url}
-                  target={item.openInNewTab ? '_blank' : undefined}
-                  rel={item.openInNewTab ? 'noopener noreferrer' : undefined}
-                  className="text-sm text-blue-600 hover:text-blue-800 hover:underline flex items-center"
-                >
-                  {item.label}
-                  {item.openInNewTab && (
-                    <span className="ml-1 text-xs">↗</span>
-                  )}
-                </Link>
+                <LinkItem
+                  url={item.url}
+                  label={item.label}
+                  openInNewTab={item.openInNewTab}
+                  variant="list"
+                />
               </li>
             ))}
           </ul>

@@ -154,11 +154,18 @@ export interface AccordionMenuWidget {
   groups: AccordionMenuItem[];
 }
 
+export type ConfigurableWidgetType = 'redirect-form' | 'emi-calculator' | 'custom-html';
+
 export interface ConfigurableWidget {
   __component: 'widgets.configurable-widget';
   id: number;
+  type: ConfigurableWidgetType;
   title?: string;
-  config?: Record<string, unknown>;
+  buttonText?: string;
+  redirectUrl?: string;
+  origin?: string;
+  defaults?: Record<string, unknown>;
+  content?: string;
 }
 
 export type SidebarWidget =

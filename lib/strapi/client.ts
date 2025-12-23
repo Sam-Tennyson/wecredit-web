@@ -42,7 +42,7 @@ export async function fetchStrapi<T>(
   const allParams = { ...params, status };
   const url = buildUrl(endpoint, allParams);
   const headers = buildHeaders();
-  console.log('[STRAPI CLIENT URL]', url);
+  // console.log('[STRAPI CLIENT URL]', url);
   const response = await fetch(url, {
     headers,
     cache: 'no-store',

@@ -110,7 +110,7 @@ const PageContent = async ({ page, breadcrumbs: providedBreadcrumbs }: PageConte
             {childPages.map((child) => (
               <Link
                 key={child.documentId}
-                href={child.fullPath}
+                href={child.fullPath || '/'}
                 className="group block p-6 bg-gray-50 hover:bg-blue-50 rounded-lg border border-gray-200 hover:border-blue-300 transition-all"
               >
                 {child.featuredImage && (
