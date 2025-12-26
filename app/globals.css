@@ -107,6 +107,27 @@
   @apply pr-4;
 }
 
+/* Anchor/Link Styling */
+.markdown-content-strapi a {
+  @apply text-blue-600 underline hover:text-blue-800 transition-colors;
+}
+
+/* Responsive Table - Card Layout on Mobile */
+@media (max-width: 767px) {
+  .markdown-content-strapi > table {
+    @apply border-0;
+  }
+  .markdown-content-strapi > table thead {
+    @apply hidden;
+  }
+  .markdown-content-strapi > table tbody tr {
+    @apply block mb-4 border border-gray-200 rounded-lg shadow-sm bg-white;
+  }
+  .markdown-content-strapi > table td {
+    @apply block border-0 border-b border-gray-100 last:border-b-0;
+  }
+}
+
 :root {
   --radius: 0.625rem;
   --background: oklch(1 0 0);
