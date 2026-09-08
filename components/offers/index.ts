@@ -10,4 +10,5 @@ export * from './approval-badge';
 export * from './status-badge';
 export * from './unmatched-offers-section';
 export * from './federation-bank-redirect-overlay';
+export * from './zapcash-sso-redirect-overlay';
 export * from './recently-clicked-offers-carousel';

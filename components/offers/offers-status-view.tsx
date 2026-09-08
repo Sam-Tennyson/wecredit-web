@@ -20,9 +20,11 @@ import { useSearchParams } from 'next/navigation';
 import { useLoanApplicationStore } from '@/stores/loan-application-store';
 import { buildOffersPathClearingLenderFilter, buildOffersPathWithQuery } from '@/lib/utils/offers-navigation';
 import { useUrlParamsStore } from '@/stores/url-params-store';
-import { isFederationBank } from '@/lib/utils/common-helper';
+import { isFederationBank, isZapcash } from '@/lib/utils/common-helper';
 import { useFederationBankRedirect } from '@/hooks/use-federation-bank-redirect';
 import { FederationBankRedirectOverlay } from '@/components/offers/federation-bank-redirect-overlay';
+import { useZapcashSsoRedirect } from '@/hooks/use-zapcash-sso-redirect';
+import { ZapcashSsoRedirectOverlay } from '@/components/offers/zapcash-sso-redirect-overlay';
 
 
 /**
@@ -37,6 +39,12 @@ export const OffersStatusView = () => {
     handleFederationBankRedirect,
     dismissFederationBankRedirect,
   } = useFederationBankRedirect();
+  const {
+    redirectState: zapcashRedirectState,
+    errorMessage: zapcashErrorMessage,
+    handleZapcashSsoRedirect,
+    dismissZapcashSsoRedirect,
+  } = useZapcashSsoRedirect();
 const {partner} = useUrlParamsStore()
   const searchParams = useSearchParams();
   const { statusOffers, isLoading, error, fetchOffers, shouldTriggerApply, reHitLenders, isReHitting } = useOffers();
@@ -60,13 +68,25 @@ useEffect(() => {
     const utmLink: string | undefined = offer.utmLink;
     const offerLenderName = offer.lenderName?.toLowerCase();
     const isFederationBankLender = isFederationBank(offerLenderName || '');
+    const isZapcashLender = isZapcash(offerLenderName || '');
     const isLntOffer = offerLenderName === 'lnt' || offerLenderName === 'upswing_lnt';
+    const mobile: string | undefined = getCookie(STORAGE_MOBILE) as string | undefined;
+    const token: string | undefined = getCookie(STORAGE_AUTH_TOKEN) as string | undefined;
+
+    if (isFederationBankLender) {
+      void handleFederationBankRedirect();
+      return;
+    }
+
+    if (isZapcashLender) {
+      void handleZapcashSsoRedirect();
+      return;
+    }
+
     if (!utmLink) {
       return;
     }
     const lenderName: string = offer.lenderName || '';
-    const mobile: string | undefined = getCookie(STORAGE_MOBILE) as string | undefined;
-    const token: string | undefined = getCookie(STORAGE_AUTH_TOKEN) as string | undefined;
     const isUtmClicked: boolean = offer.wcStatus === 'UTM_CLICKED';
 
     if (lenderName && mobile && !isUtmClicked) {
@@ -77,10 +97,6 @@ useEffect(() => {
       void notifyForwardNavigationEvent(mobile, utmLink);
     }
 
-    if (isFederationBankLender) {
-      void handleFederationBankRedirect();
-      return;
-    }
     window.open(utmLink, '_blank'); 
 
     setTimeout(() => {
@@ -150,6 +166,11 @@ useEffect(() => {
         state={redirectState}
         errorMessage={errorMessage}
         onDismiss={dismissFederationBankRedirect}
+      />
+      <ZapcashSsoRedirectOverlay
+        state={zapcashRedirectState}
+        errorMessage={zapcashErrorMessage}
+        onDismiss={dismissZapcashSsoRedirect}
       />
       <PageHeader title="Loan Status"  isOfferStatus={true} onBack={handleGoBack} />
       {hasStatusOffers && <OffersHero eligibleAmount="₹1,00,000" offerCount={statusOffers.length} />}

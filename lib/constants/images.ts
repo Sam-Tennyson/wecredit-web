@@ -87,4 +87,9 @@ export const IMAGES = {
     FEDERAL_BANK_LOGO: `${BUCKET_IMAGE_URL}/federation-bank-redirect-federal-bank-logo.png`,
     PROGRESS: `${BUCKET_IMAGE_URL}/federation-bank-redirect-progress.svg`,
   },
+  ZAPCASH_SSO_REDIRECT: {
+    WECREDIT_LOGO: `${BUCKET_IMAGE_URL}/wecredit-icon.png`,
+    ZAPCASH_LOGO: `${BUCKET_IMAGE_URL}/ZapCash Logo Png 2.png`,
+    PROGRESS: `${BUCKET_IMAGE_URL}/federation-bank-redirect-progress.svg`,
+  },
 } as const;

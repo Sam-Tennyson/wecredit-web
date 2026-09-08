@@ -47,6 +47,10 @@ export const isFederationBank = (lenderName: string): boolean => {
     return lenderName.toLowerCase() === 'federalbank';
 };
 
+export const isZapcash = (lenderName: string): boolean => {
+    return lenderName.toLowerCase() === 'zapcash';
+};
+
 export function hasMatchingStatusLender(lenders: LenderOfferStatus[], lenderName: string): boolean {
     const normalizedLenderName = normalizeLenderNameForMatch(lenderName);
     if (!normalizedLenderName) {
