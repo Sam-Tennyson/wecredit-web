@@ -104,6 +104,8 @@ export const ENDPOINTS = {
   FORWARD: {
     /** Federal Bank redirect via /api/forward — HTML auto-submit form or JSON with utmLink */
     FEDERALBANK_REDIRECT: 'federalbank-redirect',
+    /** Zapcash SSO redirect via /api/forward — JSON with utmLink */
+    ZAPCASH_SSO_REDIRECT: 'zapcash-sso-redirect',
   },
 
   AUTH: {

@@ -25,13 +25,15 @@ import { STORAGE_AUTH_TOKEN, STORAGE_MOBILE } from '@/lib/constants/api-keys';
 import { ActionButton, PageHeader } from '@/components/shared';
 import { useOfferStore } from '@/stores/offer-store';
 import { useLoanApplicationStore } from '@/stores/loan-application-store';
-import { isFederationBank, isUpswingRedirectAllowed, mapingLenderNameToLenderCode, parseAmountToNumber } from '@/lib/utils/common-helper';
+import { isFederationBank, isUpswingRedirectAllowed, isZapcash, mapingLenderNameToLenderCode, parseAmountToNumber } from '@/lib/utils/common-helper';
 import { useInfoSearchParams } from '@/hooks/use-info-search-params';
 import { useUrlParamsStore } from '@/stores/url-params-store';
 import { pushOfferpageEvent } from '@/lib/gtm';
 import { cn } from '@/lib/utils';
 import { useFederationBankRedirect } from '@/hooks/use-federation-bank-redirect';
 import { FederationBankRedirectOverlay } from '@/components/offers/federation-bank-redirect-overlay';
+import { useZapcashSsoRedirect } from '@/hooks/use-zapcash-sso-redirect';
+import { ZapcashSsoRedirectOverlay } from '@/components/offers/zapcash-sso-redirect-overlay';
 
 const OFFER_CONTENT_STATUS = {
   ALL_OFFERS: 'all-offers',
@@ -74,6 +76,12 @@ export const OffersView = () => {
     handleFederationBankRedirect,
     dismissFederationBankRedirect,
   } = useFederationBankRedirect();
+  const {
+    redirectState: zapcashRedirectState,
+    errorMessage: zapcashErrorMessage,
+    handleZapcashSsoRedirect,
+    dismissZapcashSsoRedirect,
+  } = useZapcashSsoRedirect();
   const { triggerApplyFlow } = useLoanApplicationStore();
   const reset = useOfferStore((state) => state.reset);
   const declaredSalary = useOfferStore((state) => state.declaredSalary);
@@ -188,6 +196,7 @@ export const OffersView = () => {
     const offerLenderName = offer.lenderName?.toLowerCase();
     const isUpswingRedirectAllowedLender = isUpswingRedirectAllowed(offerLenderName);
     const isFederationBankLender = isFederationBank(offerLenderName);
+    const isZapcashLender = isZapcash(offerLenderName);
     // For non-INITIATED offers in explore screen, navigate to status page
     if (offer.wcStatus !== 'INITIATED') {
       router.push(buildOffersPathWithQuery('/offers/status', searchParams));
@@ -204,6 +213,11 @@ export const OffersView = () => {
 
     if (isFederationBankLender) {
       void handleFederationBankRedirect();
+      return;
+    }
+
+    if (isZapcashLender) {
+      void handleZapcashSsoRedirect();
       return;
     }
 
@@ -477,6 +491,11 @@ export const OffersView = () => {
         state={redirectState}
         errorMessage={errorMessage}
         onDismiss={dismissFederationBankRedirect}
+      />
+      <ZapcashSsoRedirectOverlay
+        state={zapcashRedirectState}
+        errorMessage={zapcashErrorMessage}
+        onDismiss={dismissZapcashSsoRedirect}
       />
       <PageHeader title="Offers for you" onBack={handleGoBack} />
 
