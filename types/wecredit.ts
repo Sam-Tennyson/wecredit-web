@@ -183,3 +183,10 @@ export interface FederationBankRedirectResponse {
   leadId?: string;
   utmLink?: string;
 }
+
+/** Zapcash SSO redirect forward API payload */
+export interface ZapcashSsoRedirectResponse {
+  statusCode?: number | string;
+  statusMessage?: string;
+  utmLink?: string;
+}
